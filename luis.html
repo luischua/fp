@@ -1,0 +1,35 @@
+<h3>Register</h3>
+<form action="http://localhost:8080/register" method="post" enctype="multipart/form-data">
+    <label for="lname">Name:</label>
+    <input type="text" id="lname" name="name"><br><br>
+    <label for="lBirthDate">Birthdate:</label>
+    <input type="text" id="lBirthDate" name="birthdate" value="1985-06-15"><br><br>
+    <label for="lFingerPrint">FingerPrint:</label>
+    <input type="file" id="lFingerPrint" name="fingerprint"><br><br>
+    <label for="lIdPic">Id Picture:</label>
+    <input type="file" id="lIdPic" name="idpic"><br><br>
+    <input type="submit" value="Submit">
+</form>
+
+<h3>Verify</h3>
+<form action="http://localhost:8080/verify" method="post" enctype="multipart/form-data">
+    <label for="lId">Id:</label>
+    <input type="text" id="lId" name="id"><br><br>
+    <label for="lFingerPrint2">FingerPrint:</label>
+    <input type="file" id="lFingerPrint2" name="fingerprint"><br><br>
+    <input type="submit" value="Submit">
+</form>
+
+<h3>Find by QrCode</h3>
+<form action="http://localhost:8080/person" method="post" enctype="multipart/form-data">
+    <label for="lQrCode">QrCode:</label>
+    <input type="file" id="lQrCode" name="qrcode"><br><br>
+    <input type="submit" value="Submit">
+</form>
+
+<h3>Find by Fingerprint</h3>
+<form action="http://localhost:8080/search" method="post" enctype="multipart/form-data">
+    <label for="lFingerPrint3">FingerPrint:</label>
+    <input type="file" id="lFingerPrint3" name="fingerprint"><br><br>
+    <input type="submit" value="Submit">
+</form>
