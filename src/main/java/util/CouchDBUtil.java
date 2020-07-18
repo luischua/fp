@@ -10,6 +10,7 @@ import org.lightcouch.CouchDbClient;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -22,44 +23,30 @@ public class CouchDBUtil {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>(){
             @Override
-            public void write(final JsonWriter jsonWriter, final LocalDate localDate) throws IOException {
-                if (localDate == null) {
-                    jsonWriter.nullValue();
-                } else {
-                    jsonWriter.value(localDate.toString());
-                }
+            public LocalDate read(final JsonReader jsonReader) throws IOException {
+                return LocalDate.parse(jsonReader.nextString(), DateTimeFormatter.ISO_DATE);
             }
 
             @Override
-            public LocalDate read(final JsonReader jsonReader) throws IOException {
-                if (jsonReader.peek() == JsonToken.NULL) {
-                    jsonReader.nextNull();
-                    return null;
-                } else {
-                    return LocalDate.parse(jsonReader.nextString());
-                }
+            public void write(final JsonWriter jsonWriter, final LocalDate localDate) throws IOException {
+                jsonWriter.value(DateTimeFormatter.ISO_DATE.format(localDate));
             }
-        });
+
+
+        }.nullSafe());
+
         builder.registerTypeAdapter(LocalDateTime.class, new TypeAdapter<LocalDateTime>(){
             @Override
-            public void write(final JsonWriter jsonWriter, final LocalDateTime localDate) throws IOException {
-                if (localDate == null) {
-                    jsonWriter.nullValue();
-                } else {
-                    jsonWriter.value(localDate.toString());
-                }
+            public LocalDateTime read(final JsonReader jsonReader) throws IOException {
+                return LocalDateTime.parse(jsonReader.nextString(), DateTimeFormatter.ISO_DATE_TIME);
             }
 
             @Override
-            public LocalDateTime read(final JsonReader jsonReader) throws IOException {
-                if (jsonReader.peek() == JsonToken.NULL) {
-                    jsonReader.nextNull();
-                    return null;
-                } else {
-                    return LocalDateTime.parse(jsonReader.nextString());
-                }
+            public void write(final JsonWriter jsonWriter, final LocalDateTime localDateTime) throws IOException {
+                jsonWriter.value(DateTimeFormatter.ISO_DATE_TIME.format(localDateTime));
             }
-        });
+        }.nullSafe());
+
         for(String db: dbList) {
             CouchDbClient client = new CouchDbClient(db+".properties");
             client.setGsonBuilder(builder);

@@ -27,6 +27,11 @@ public class Person extends Document {
 
     private String verifiedStatus;
     private LocalDate lastVerified;
+
+    public List<EditHistory> getSaveHistory() {
+        return saveHistory;
+    }
+
     private List<EditHistory> saveHistory = new ArrayList<EditHistory>();
 
     public LocalDate getBirthDate() {

@@ -52,12 +52,12 @@ class LocalDateTimeConfig {
         return new Formatter<LocalDateTime>() {
             @Override
             public LocalDateTime parse(String text, Locale locale) throws ParseException {
-                return LocalDateTime.parse(text, DateTimeFormatter.ISO_DATE);
+                return LocalDateTime.parse(text, DateTimeFormatter.ISO_DATE_TIME);
             }
 
             @Override
             public String print(LocalDateTime object, Locale locale) {
-                return DateTimeFormatter.ISO_DATE.format(object);
+                return DateTimeFormatter.ISO_DATE_TIME.format(object);
             }
         };
     }
