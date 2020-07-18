@@ -1,12 +1,12 @@
 package model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-public class History {
+public class EditHistory {
     private String userId;
-    private Date editedTime;
+    private LocalDateTime editedTime;
 
-    public Date getEditedTime() {
+    public LocalDateTime getEditedTime() {
         return editedTime;
     }
 
@@ -16,6 +16,6 @@ public class History {
 
     public void setUserId(String userId) {
         this.userId = userId;
-        editedTime = new Date();
+        editedTime = LocalDateTime.now();
     }
 }

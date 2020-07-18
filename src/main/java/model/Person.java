@@ -10,13 +10,24 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
 
 public class Person extends Document {
     private String name;
     private String base64IdImage;
     private LocalDate birthDate;
-    private List<History> saveHistory = new ArrayList<History>();
+
+    public String getVerifiedStatus() {
+        return verifiedStatus;
+    }
+
+    public void setVerifiedStatus(String verifiedStatus) {
+        this.verifiedStatus = verifiedStatus;
+        lastVerified = LocalDate.now();
+    }
+
+    private String verifiedStatus;
+    private LocalDate lastVerified;
+    private List<EditHistory> saveHistory = new ArrayList<EditHistory>();
 
     public LocalDate getBirthDate() {
         return birthDate;
@@ -27,7 +38,10 @@ public class Person extends Document {
     }
 
     public long getAge(){
-        return ChronoUnit.YEARS.between(birthDate, LocalDate.now());
+        if(birthDate != null) {
+            return ChronoUnit.YEARS.between(birthDate, LocalDate.now());
+        }
+        return -1;
     }
 
     public String getName() {
@@ -46,11 +60,19 @@ public class Person extends Document {
     }
 
     public void save(String userId){
-        History h = new History();
+        EditHistory h = new EditHistory();
         h.setUserId(userId);
         saveHistory.add(h);
-        Response r = CouchDBUtil.getDbClient("person").save(this);
-        this.setId(r.getId());
+        if(this.getRevision() != null){
+            Response r = CouchDBUtil.getDbClient("person").update(this);
+        }else{
+            Response r = CouchDBUtil.getDbClient("person").save(this);
+            this.setId(r.getId());
+        }
+    }
+
+    public void save(){
+        save("system");
     }
 
     public static Person find(String id){

@@ -10,7 +10,7 @@ public class CouchDBUtil {
     static Map<String, CouchDbClient> dbClientMap;
     static {
         dbClientMap = new HashMap<String, CouchDbClient>();
-        List<String> dbList = List.of("fingerprint", "person", "verification");
+        List<String> dbList = List.of("fingerprint", "person", "verification", "request");
         for(String db: dbList) {
             dbClientMap.put(db, new CouchDbClient(db+".properties"));
         }

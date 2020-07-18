@@ -1,5 +1,6 @@
 package app.controller;
 
+import app.exception.RequestContext;
 import model.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
@@ -8,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import util.CrossCheckMain;
 
 import javax.servlet.http.HttpSession;;
 import java.io.FileInputStream;
 import java.time.LocalDate;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 @RestController
@@ -19,6 +22,9 @@ public class FpController {
 
     @Autowired
     private HttpSession httpSession;
+
+    @Autowired
+    private RequestContext requestContext;
 
     @PostMapping(
             value = "/register",
@@ -29,8 +35,9 @@ public class FpController {
                     @RequestParam("idpic") MultipartFile idPic,
                     @RequestParam String name,
                     @RequestParam(value = "birthdate", required=false) LocalDate birthDate) throws Exception{
+        requestContext.setClassMethod("FpController.register");
         Fingerprint fp = new Fingerprint();
-        fp.setBase64Image(Base64.encodeBase64String(fingerprint.getBytes()));
+        fp.setImage(fingerprint.getBytes());
         fp.save();
         Person createdPerson = new Person();
         createdPerson.setId(fp.getId());
@@ -39,6 +46,7 @@ public class FpController {
         createdPerson.setName(name);
         createdPerson.setBirthDate(birthDate);
         createdPerson.save("luis");
+        CrossCheckMain.getInstance().addId(fp.getId());
         System.out.println("BirthDate"+birthDate);
         System.out.println("Age"+ createdPerson.getAge());
         System.out.println("ID filename"+ idPic.getOriginalFilename());
@@ -82,6 +90,7 @@ public class FpController {
     @PostMapping("/verify")
     public boolean verify(@RequestParam MultipartFile fingerprint,
                                @RequestParam String id) throws Exception{
+        requestContext.setClassMethod("FpController.verify");
         Fingerprint fp = Fingerprint.find(id);
         byte[] fingerprintBytes = fingerprint.getBytes();
         return fp.match(fingerprintBytes, true);

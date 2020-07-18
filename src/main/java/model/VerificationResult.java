@@ -3,7 +3,11 @@ package model;
 import org.lightcouch.Document;
 import util.CouchDBUtil;
 
-public class Verification extends Document {
+public class VerificationResult extends Document {
+    private String base64Image;
+    private String userId;
+    private double score;
+
     public String getBase64Image() {
         return base64Image;
     }
@@ -27,10 +31,6 @@ public class Verification extends Document {
     public void setScore(double score) {
         this.score = score;
     }
-
-    private String base64Image;
-    private String userId;
-    private double score;
 
     public void save(){
         CouchDBUtil.getDbClient("verification").save(this);

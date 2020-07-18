@@ -5,23 +5,52 @@ import org.lightcouch.*;
 import util.CouchDBUtil;
 import util.FingerprintAnalyzer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Fingerprint extends Document {
     private String base64Image;
-    private String verifiedNode;
-    private int duration;
-    private String status;
+
+    private List<CrossCheckStatus> crossCheckStatusList = new ArrayList<CrossCheckStatus>();
+
+    public void newCrossCheck(){
+        CrossCheckStatus status = new CrossCheckStatus();
+        status.startCrossCheck();
+        Person hitPerson = Person.crosscheck(getImage());
+        status.endCrossCheck();
+        Person currentPerson = Person.find(getId());
+        if(hitPerson != null){
+            status.setStatus("success");
+            currentPerson.setVerifiedStatus("success");
+        }else{
+            status.setStatus("fail");
+            status.setHitId(hitPerson.getId());
+            currentPerson.setVerifiedStatus("fail");
+        }
+        currentPerson.save();
+        crossCheckStatusList.add(status);
+    }
 
     public String getBase64Image() {
         return base64Image;
     }
 
-    public void setBase64Image(String base64Image) {
-        this.base64Image = base64Image;
+    public byte[] getImage(){
+        return Base64.decodeBase64(base64Image);
+    }
+
+    public void setImage(byte[] image){
+        base64Image = Base64.encodeBase64String(image);
     }
 
     public void save(){
-        Response r = CouchDBUtil.getDbClient("fingerprint").save(this);
-        this.setId(r.getId());
+        if(this.getRevision() != null){
+            Response r = CouchDBUtil.getDbClient("fingerprint").update(this);
+        }else {
+            Response r = CouchDBUtil.getDbClient("fingerprint").save(this);
+            this.setId(r.getId());
+        }
+
     }
 
     public static Fingerprint find(String id){
@@ -32,7 +61,7 @@ public class Fingerprint extends Document {
         double score = FingerprintAnalyzer.getScore(fingerprintBytes, Base64.decodeBase64(base64Image));
         double threshold = 40;
         if(saveVerification){
-            Verification v = new Verification();
+            VerificationResult v = new VerificationResult();
             v.setUserId(this.getId());
             v.setBase64Image(Base64.encodeBase64String(fingerprintBytes));
             v.setScore(score);
