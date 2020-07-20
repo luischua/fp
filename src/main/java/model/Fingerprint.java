@@ -5,27 +5,42 @@ import org.lightcouch.*;
 import util.CouchDBUtil;
 import util.FingerprintAnalyzer;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Fingerprint extends Document {
     private String base64Image;
 
+    public long getDateTimeInLong() {
+        return dateTimeInLong;
+    }
+
+    public void setDateTimeInLong(long dateTimeInLong) {
+        this.dateTimeInLong = dateTimeInLong;
+    }
+
+    private long dateTimeInLong;
+
     private List<CrossCheckStatus> crossCheckStatusList = new ArrayList<CrossCheckStatus>();
 
     public void newCrossCheck(){
         CrossCheckStatus status = new CrossCheckStatus();
         status.startCrossCheck();
-        Person hitPerson = Person.crosscheck(getImage());
+        List<String> hitList = Person.crosscheck(getImage());
         status.endCrossCheck();
         Person currentPerson = Person.find(getId());
-        if(hitPerson != null){
-            status.setStatus("success");
-            currentPerson.setVerifiedStatus("success");
+        //remove same person
+        hitList.remove(getId());
+        if(hitList.size() == 0){
+            status.setStatus(VerificationStatus.SUCCESS);
+            currentPerson.setVerifiedStatus(VerificationStatus.SUCCESS);
         }else{
-            status.setStatus("fail");
-            status.setHitId(hitPerson.getId());
-            currentPerson.setVerifiedStatus("fail");
+            status.setStatus(VerificationStatus.FAIL);
+            status.setHitId(hitList);
+            currentPerson.setVerifiedStatus(VerificationStatus.FAIL);
         }
         currentPerson.save();
         crossCheckStatusList.add(status);
@@ -47,10 +62,17 @@ public class Fingerprint extends Document {
         if(this.getRevision() != null){
             Response r = CouchDBUtil.getDbClient("fingerprint").update(this);
         }else {
+            this.setDateTimeInLong(getCurrentTimeInMillis());
             Response r = CouchDBUtil.getDbClient("fingerprint").save(this);
             this.setId(r.getId());
         }
 
+    }
+
+    private long getCurrentTimeInMillis()
+    {
+        return LocalDateTime.now().atZone(ZoneId.systemDefault())
+                .toInstant().toEpochMilli();
     }
 
     public static Fingerprint find(String id){

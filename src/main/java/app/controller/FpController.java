@@ -24,12 +24,16 @@ public class FpController {
     @Autowired
     private RequestContext requestContext;
 
+    public void newTestInstance(){
+        requestContext = new RequestContext();
+    }
+
     @PostMapping(
             value = "/register",
             produces = MediaType.IMAGE_JPEG_VALUE
     )
     public @ResponseBody
-    byte[] register(@RequestParam MultipartFile fingerprint,
+    Person register(@RequestParam MultipartFile fingerprint,
                     @RequestParam("idpic") MultipartFile idPic,
                     @RequestParam String name,
                     @RequestParam(value = "birthdate", required=false) LocalDate birthDate) throws Exception{
@@ -37,18 +41,20 @@ public class FpController {
         Fingerprint fp = new Fingerprint();
         fp.setImage(fingerprint.getBytes());
         fp.save();
+        String id = fp.getId();
         Person createdPerson = new Person();
-        createdPerson.setId(fp.getId());
+        createdPerson.setId(id);
         String idExtension = FilenameUtils.getExtension(idPic.getOriginalFilename());
-        createdPerson.setBase64IdImage(Base64.encodeBase64String(idPic.getBytes()), idExtension);
+        createdPerson.setIdImage(idPic.getBytes(), idExtension);
         createdPerson.setName(name);
         createdPerson.setBirthDate(birthDate);
+        createdPerson.setQrImage(QrCode.generateQrCodeByte(id));
         createdPerson.save("luis");
         CrossCheckMain.getInstance().addId(fp.getId());
         System.out.println("BirthDate"+birthDate);
         System.out.println("Age"+ createdPerson.getAge());
         System.out.println("ID filename"+ idPic.getOriginalFilename());
-        return getQrCode(fp.getId());
+        return createdPerson;
     }
 
     @GetMapping(
@@ -57,32 +63,28 @@ public class FpController {
     )
     public @ResponseBody
     byte[] getQrCode(@PathVariable String id) throws Exception{
-        String qrFilePath = id+".png";
-        QrCode.writeQrCode(id, qrFilePath,250);
-        return IOUtils.toByteArray(new FileInputStream(qrFilePath));
+        requestContext.setClassMethod("FpController.getQrCode");
+        return Person.find(id).getQrImage();
     }
 
     @GetMapping("/person/{id}")
     public Person findById(@PathVariable String id){
+        requestContext.setClassMethod("FpController.findById");
         return Person.find(id);
     }
 
     /* to be implemented */
     @GetMapping("/search/{name}")
     public Person[] findByName(@PathVariable String name){
+        requestContext.setClassMethod("FpController.searchByName");
         return null;
-    }
-
-    /* to be implemented */
-    @PostMapping("/search")
-    public Person findByFingerprint(@RequestParam MultipartFile fingerprint) throws Exception{
-        return Person.crosscheck(fingerprint.getBytes());
     }
 
     @PostMapping("/person")
     public Person findByQrCode( @RequestParam("qrcode") MultipartFile qrCode) throws Exception{
-       String id = QrCode.readQRCode(qrCode.getInputStream());
-       return findById(id);
+        requestContext.setClassMethod("FpController.findByQrCode");
+        String id = QrCode.readQRCode(qrCode.getInputStream());
+        return findById(id);
     }
 
     @PostMapping("/verify")

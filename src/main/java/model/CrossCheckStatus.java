@@ -2,26 +2,27 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class CrossCheckStatus {
     private LocalDateTime crossCheckStart;
     private LocalDateTime crossCheckEnd;
-    private String status;
-    private String hitId;
+    private VerificationStatus status;
+    private List<String> hitId;
 
-    public String getHitId() {
+    public List<String> getHitId() {
         return hitId;
     }
 
-    public void setHitId(String hitId) {
+    public void setHitId(List<String> hitId) {
         this.hitId = hitId;
     }
 
-    public String getStatus() {
+    public VerificationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(VerificationStatus status) {
         this.status = status;
     }
 

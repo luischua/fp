@@ -7,6 +7,8 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
@@ -17,6 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class QrCode {
+
+    public static byte[] generateQrCodeByte(String id) throws Exception{
+        String qrFilePath = id+".png";
+        QrCode.writeQrCode(id, qrFilePath,250);
+        return IOUtils.toByteArray(new FileInputStream(qrFilePath));
+    }
 
     public static void writeQrCode(String myCodeText, String filePath, int size) throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();

@@ -1,5 +1,6 @@
 package model;
 
+import org.apache.commons.codec.binary.Base64;
 import org.lightcouch.Document;
 import org.lightcouch.Page;
 import org.lightcouch.Response;
@@ -13,20 +14,38 @@ import java.util.List;
 
 public class Person extends Document {
     private String name;
-    private String base64IdImage;
+    private String idImage;
+    private String idImageExtension;
     private LocalDate birthDate;
+    private String qrImage;
+    private VerificationStatus verifiedStatus;
+    private LocalDate lastVerified;
 
-    public String getVerifiedStatus() {
+    public byte[] getIdImage() {
+        return Base64.decodeBase64(idImage);
+    }
+
+    public void setIdImage(byte[] idImage, String extension) {
+        this.idImage = Base64.encodeBase64String(idImage);;
+        this.idImageExtension = extension;
+    }
+
+    public byte[] getQrImage() {
+        return  Base64.decodeBase64(qrImage);
+    }
+
+    public void setQrImage(byte[] qrImage) {
+        this.qrImage = Base64.encodeBase64String(qrImage);;
+    }
+
+    public VerificationStatus getVerifiedStatus() {
         return verifiedStatus;
     }
 
-    public void setVerifiedStatus(String verifiedStatus) {
+    public void setVerifiedStatus(VerificationStatus verifiedStatus) {
         this.verifiedStatus = verifiedStatus;
         lastVerified = LocalDate.now();
     }
-
-    private String verifiedStatus;
-    private LocalDate lastVerified;
 
     public List<EditHistory> getSaveHistory() {
         return saveHistory;
@@ -53,15 +72,9 @@ public class Person extends Document {
         return name;
     }
     public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getBase64IdImage() {
-        return base64IdImage;
-    }
-
-    public void setBase64IdImage(String base64IdImage, String extension) {
-        this.base64IdImage = "data:image/"+extension+";base64, "+base64IdImage;
+        if(name != null) {
+            this.name = name.toUpperCase();
+        }
     }
 
     public void save(String userId){
@@ -73,6 +86,7 @@ public class Person extends Document {
         }else{
             Response r = CouchDBUtil.getDbClient("person").save(this);
             this.setId(r.getId());
+            this.setRevision(r.getRev());
         }
     }
 
@@ -84,20 +98,23 @@ public class Person extends Document {
         return CouchDBUtil.getDbClient("person").find(Person.class, id);
     }
 
-    public static Person crosscheck(byte[] fingerprintBytes){
+    public static List<String> crosscheck(byte[] fingerprintBytes){
         View allDocs = CouchDBUtil.getDbClient("fingerprint").view("_all_docs");
         String nextParam;
         Page<Fingerprint> page;
+        List<String> hitList = new ArrayList<String>();
         do {
             page = allDocs.queryPage(10, null, Fingerprint.class);
             List<Fingerprint> list = page.getResultList();
             for(Fingerprint f : list){
+                System.out.println("Matching"+f.getId());
                 if(f.match(fingerprintBytes, false)){
-                    return Person.find(f.getId());
+                    System.out.println("Hit"+f.getId());
+                    hitList.add(f.getId());
                 }
             }
             nextParam = page.getNextParam();
         }while(page.isHasNext());
-        return null;
+        return hitList;
     }
 }

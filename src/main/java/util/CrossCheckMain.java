@@ -16,7 +16,7 @@ public class CrossCheckMain {
     }
 
     private ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<String>();
-    private long sleepDuration = 60000;
+    public static final long SLEEP_DURATION = 3000;
     private int noOfThreads = 2;
     private CrossCheckMain(){
         for(int i = 1; i <= noOfThreads; i++)
@@ -25,6 +25,7 @@ public class CrossCheckMain {
         }
     }
     public void addId(String id){
+        System.out.println("Adding"+ id);
         queue.add(id);
     }
     class CrossCheckThread extends Thread {
@@ -32,12 +33,13 @@ public class CrossCheckMain {
             while(true){
                 try {
                     String id = queue.remove();
+                    System.out.println("Checking"+id);
                     Fingerprint f = Fingerprint.find(id);
                     f.newCrossCheck();
                     f.save();
                 }catch (NoSuchElementException e){
                     try {
-                        Thread.sleep(sleepDuration);
+                        Thread.sleep(SLEEP_DURATION);
                     } catch (InterruptedException interruptedException) {
                         interruptedException.printStackTrace();
                     }

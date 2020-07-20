@@ -1,6 +1,6 @@
 import model.QrCode;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class QrCodeTest {
     @Test
@@ -11,10 +11,10 @@ public class QrCodeTest {
         try {
             QrCode.writeQrCode(id, "QR.png", 250);
             String decodedId = QrCode.readQRCode(filePath);
-            Assert.assertEquals(id, decodedId);
+            Assertions.assertEquals(id, decodedId);
         } catch (Exception e) {
             System.out.println(e);
-            Assert.fail();
+            Assertions.fail();
         }
         System.out.println("\n\nYou have successfully created QR Code.");
     }
