@@ -98,6 +98,13 @@ public class Person extends Document {
         return CouchDBUtil.getDbClient("person").find(Person.class, id);
     }
 
+
+    public static List<Person> findByName(String name){
+        String query = "{ \"selector\": { \"name\": { \"$eq\": \""+name.toUpperCase()+"\" } }, \"limit\":10 }";
+        System.out.println("Query:"+query);
+        return CouchDBUtil.getDbClient("person").findDocs(query,Person.class);
+    }
+
     public static List<String> crosscheck(byte[] fingerprintBytes){
         View allDocs = CouchDBUtil.getDbClient("fingerprint").view("_all_docs");
         String nextParam;

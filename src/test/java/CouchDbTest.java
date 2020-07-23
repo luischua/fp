@@ -37,6 +37,28 @@ public class CouchDbTest {
         }
     }
 
+    @Test
+    public void testSearchByName() throws Exception{
+        Person person1 = new Person();
+        person1.setName("Luis Chua");
+        person1.save();
+
+        Person person2 = new Person();
+        person2.setName("Shaggy");
+        person2.save();
+
+        Person person3 = new Person();
+        person3.setName("Luis Chua");
+        person3.save();
+
+        List<Person> list = Person.findByName("Luis Chua");
+        System.out.println(list);
+        Assertions.assertTrue(list.size() == 2);
+        //dbClient.remove(person1.getId(), person1.getRevision());
+        //dbClient.remove(person2.getId(), person2.getRevision());
+        //dbClient.remove(person3.getId(), person3.getRevision());
+    }
+
     //@Test
     public void testFind() throws Exception{
         CouchDbClient dbClient = new CouchDbClient("fingerprint.properties");

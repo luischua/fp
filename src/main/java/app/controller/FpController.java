@@ -14,6 +14,7 @@ import util.CrossCheckMain;
 import javax.servlet.http.HttpSession;;
 import java.io.FileInputStream;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 public class FpController {
@@ -75,9 +76,9 @@ public class FpController {
 
     /* to be implemented */
     @GetMapping("/search/{name}")
-    public Person[] findByName(@PathVariable String name){
+    public List<Person> findByName(@PathVariable String name){
         requestContext.setClassMethod("FpController.searchByName");
-        return null;
+        return Person.findByName(name);
     }
 
     @PostMapping("/person")
