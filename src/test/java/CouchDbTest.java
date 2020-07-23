@@ -54,9 +54,10 @@ public class CouchDbTest {
         List<Person> list = Person.findByName("Luis Chua");
         System.out.println(list);
         Assertions.assertTrue(list.size() == 2);
-        //dbClient.remove(person1.getId(), person1.getRevision());
-        //dbClient.remove(person2.getId(), person2.getRevision());
-        //dbClient.remove(person3.getId(), person3.getRevision());
+        CouchDbClient dbClient = new CouchDbClient("person.properties");
+        dbClient.remove(person1.getId(), person1.getRevision());
+        dbClient.remove(person2.getId(), person2.getRevision());
+        dbClient.remove(person3.getId(), person3.getRevision());
     }
 
     //@Test
