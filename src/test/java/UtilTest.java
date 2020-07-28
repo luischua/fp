@@ -1,5 +1,6 @@
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.mock.web.MockMultipartFile;
+import util.FingerprintAnalyzer;
 
 import java.io.InputStream;
 import java.util.Scanner;
@@ -24,6 +25,10 @@ public class UtilTest {
 
     public static byte[] getTestPathByte(String url) throws Exception{
         return UtilTest.getTestPathInputStream(url).readAllBytes();
+    }
+
+    public static byte[] getTestTemplateByte(String url) throws Exception{
+        return FingerprintAnalyzer.getTemplateByte(getTestPathByte(url));
     }
 
     public static InputStream getTestPathInputStream(String url) throws Exception{

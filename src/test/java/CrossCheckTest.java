@@ -25,9 +25,9 @@ public class CrossCheckTest {
                         UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1));
 
         Person registeredPerson = controller.register(fingerprint, UtilTest.getIdPic(), "test 1", null);
-        List<String> people = Person.crosscheck(UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1));
+        List<String> people = Person.crosscheckTemplate(UtilTest.getTestTemplateByte(UtilTest.USER_12_SAMPLE_1));
         Assertions.assertTrue(people.size() > 0);
-        people = Person.crosscheck(UtilTest.getTestPathByte(UtilTest.USER_13_SAMPLE_1));
+        people = Person.crosscheckTemplate(UtilTest.getTestTemplateByte(UtilTest.USER_13_SAMPLE_1));
         Assertions.assertTrue(people.size() == 0);
 
         Thread.sleep(CrossCheckMain.SLEEP_DURATION);

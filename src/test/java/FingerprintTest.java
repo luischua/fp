@@ -7,9 +7,9 @@ public class FingerprintTest{
     @Test
     public void testSourceAFIS(){
         try {
-            byte[] probeImage =  UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1);
-            byte[] candidateImage = UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_2);
-            double score = FingerprintAnalyzer.getScore(probeImage, candidateImage);
+            byte[] probeImageTemplate =  UtilTest.getTestTemplateByte(UtilTest.USER_12_SAMPLE_1);
+            byte[] candidateImageTemplate = UtilTest.getTestTemplateByte(UtilTest.USER_12_SAMPLE_2);
+            double score = FingerprintAnalyzer.getScoreComparingCachedTemplate(probeImageTemplate, candidateImageTemplate);
             Assertions.assertTrue(score > UtilTest.SCORE_THRESHOLD);
         }catch (Exception e){
             System.out.println(e);

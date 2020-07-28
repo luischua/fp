@@ -26,7 +26,7 @@ public class Person extends Document {
     }
 
     public void setIdImage(byte[] idImage, String extension) {
-        this.idImage = Base64.encodeBase64String(idImage);;
+        this.idImage = Base64.encodeBase64String(idImage);
         this.idImageExtension = extension;
     }
 
@@ -105,9 +105,9 @@ public class Person extends Document {
         return CouchDBUtil.getDbClient("person").findDocs(query,Person.class);
     }
 
-    public static List<String> crosscheck(byte[] fingerprintBytes){
+    public static List<String> crosscheckTemplate(byte[] templateBytes){
         View allDocs = CouchDBUtil.getDbClient("fingerprint").view("_all_docs");
-        String nextParam;
+        String nextParam = "";
         Page<Fingerprint> page;
         List<String> hitList = new ArrayList<String>();
         do {
@@ -115,7 +115,7 @@ public class Person extends Document {
             List<Fingerprint> list = page.getResultList();
             for(Fingerprint f : list){
                 System.out.println("Matching"+f.getId());
-                if(f.match(fingerprintBytes, false)){
+                if(f.matchTemplate(templateBytes)){
                     System.out.println("Hit"+f.getId());
                     hitList.add(f.getId());
                 }

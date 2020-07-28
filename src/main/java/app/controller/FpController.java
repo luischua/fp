@@ -93,7 +93,6 @@ public class FpController {
                                @RequestParam String id) throws Exception{
         requestContext.setClassMethod("FpController.verify");
         Fingerprint fp = Fingerprint.find(id);
-        byte[] fingerprintBytes = fingerprint.getBytes();
-        return fp.match(fingerprintBytes, true);
+        return fp.match(fingerprint.getBytes());
     }
 }

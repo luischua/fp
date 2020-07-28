@@ -7,12 +7,19 @@ import util.FingerprintAnalyzer;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Fingerprint extends Document {
     private String base64Image;
+
+    private String cachedTemplate;
+
+    private long dateTimeInLong;
+
+    private static double threshold = 40;
+
+    private List<CrossCheckStatus> crossCheckStatusList = new ArrayList<CrossCheckStatus>();
 
     public long getDateTimeInLong() {
         return dateTimeInLong;
@@ -22,14 +29,14 @@ public class Fingerprint extends Document {
         this.dateTimeInLong = dateTimeInLong;
     }
 
-    private long dateTimeInLong;
-
-    private List<CrossCheckStatus> crossCheckStatusList = new ArrayList<CrossCheckStatus>();
+    public String getCachedTemplate() {
+        return cachedTemplate;
+    }
 
     public void newCrossCheck(){
         CrossCheckStatus status = new CrossCheckStatus();
         status.startCrossCheck();
-        List<String> hitList = Person.crosscheck(getImage());
+        List<String> hitList = Person.crosscheckTemplate(this.getCachedTemplateByte());
         status.endCrossCheck();
         Person currentPerson = Person.find(getId());
         //remove same person
@@ -54,8 +61,13 @@ public class Fingerprint extends Document {
         return Base64.decodeBase64(base64Image);
     }
 
+    public byte[] getCachedTemplateByte(){
+        return Base64.decodeBase64(cachedTemplate);
+    }
+
     public void setImage(byte[] image){
         base64Image = Base64.encodeBase64String(image);
+        cachedTemplate = Base64.encodeBase64String(FingerprintAnalyzer.getTemplateByte(image));
     }
 
     public void save(){
@@ -79,16 +91,19 @@ public class Fingerprint extends Document {
         return CouchDBUtil.getDbClient("fingerprint").find(Fingerprint.class, id);
     }
 
-    public boolean match(byte[] fingerprintBytes, boolean saveVerification){
-        double score = FingerprintAnalyzer.getScore(fingerprintBytes, Base64.decodeBase64(base64Image));
-        double threshold = 40;
-        if(saveVerification){
-            VerificationResult v = new VerificationResult();
-            v.setUserId(this.getId());
-            v.setBase64Image(Base64.encodeBase64String(fingerprintBytes));
-            v.setScore(score);
-            v.save();
-        }
+    public boolean match(byte[] fingerprintBytes){
+        byte[] templateBytes = FingerprintAnalyzer.getTemplateByte(fingerprintBytes);
+        double score = FingerprintAnalyzer.getScoreComparingCachedTemplate(templateBytes, getCachedTemplateByte());
+        VerificationResult v = new VerificationResult();
+        v.setUserId(this.getId());
+        v.setBase64Image(Base64.encodeBase64String(fingerprintBytes));
+        v.setScore(score);
+        v.save();
+        return score > threshold;
+    }
+
+    public boolean matchTemplate(byte[] templateBytes){
+        double score = FingerprintAnalyzer.getScoreComparingCachedTemplate(templateBytes, getCachedTemplateByte());
         return score > threshold;
     }
 }
