@@ -3,7 +3,6 @@ package util;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.lightcouch.CouchDbClient;
 
@@ -16,10 +15,9 @@ import java.util.Map;
 import java.util.List;
 
 public class CouchDBUtil {
-    static Map<String, CouchDbClient> dbClientMap;
-    static {
-        dbClientMap = new HashMap<String, CouchDbClient>();
-        List<String> dbList = List.of("fingerprint", "person", "verification", "request");
+    static Map<Class, CouchDbClient> dbClientMap = new HashMap<Class, CouchDbClient>();
+
+    private static GsonBuilder getGsonBuilder() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>(){
             @Override
@@ -46,14 +44,19 @@ public class CouchDBUtil {
                 jsonWriter.value(DateTimeFormatter.ISO_DATE_TIME.format(localDateTime));
             }
         }.nullSafe());
-
-        for(String db: dbList) {
-            CouchDbClient client = new CouchDbClient(db+".properties");
-            client.setGsonBuilder(builder);
-            dbClientMap.put(db, client);
-        }
+        return builder;
     }
-    public static CouchDbClient getDbClient(String key){
-        return dbClientMap.get(key);
+
+    public static CouchDbClient getDbClient(Class key){
+        CouchDbClient client = dbClientMap.get(key);
+        if(client == null){
+            String dbPropertiesFile = key.getSimpleName().toLowerCase() +".properties";
+            System.out.println("DBProperties:"+dbPropertiesFile);
+            GsonBuilder builder = getGsonBuilder();
+            client = new CouchDbClient(dbPropertiesFile);
+            client.setGsonBuilder(builder);
+            dbClientMap.put(key, client);
+        }
+        return client;
     }
 }

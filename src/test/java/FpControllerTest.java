@@ -37,7 +37,7 @@ public class FpControllerTest {
         //Assert.assertEquals(p.getId(), controller.findByName("test")[0].getId());
 
         //remove added records after testing
-        CouchDBUtil.getDbClient("person").remove(Person.find(p.getId()));
-        CouchDBUtil.getDbClient("fingerprint").remove(Fingerprint.find(p.getId()));
+        CouchDBUtil.getDbClient(Person.class).remove(Person.find(p.getId()));
+        CouchDBUtil.getDbClient(Fingerprint.class).remove(Fingerprint.find(p.getId()));
     }
 }

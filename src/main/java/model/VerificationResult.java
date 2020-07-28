@@ -1,9 +1,13 @@
 package model;
 
+import org.lightcouch.CouchDbClient;
 import org.lightcouch.Document;
 import util.CouchDBUtil;
 
 public class VerificationResult extends Document {
+
+    private static final CouchDbClient DB_CLIENT = CouchDBUtil.getDbClient(VerificationResult.class);
+
     private String base64Image;
     private String userId;
     private double score;
@@ -38,6 +42,6 @@ public class VerificationResult extends Document {
     }
 
     public void save(){
-        CouchDBUtil.getDbClient("verification").save(this);
+        DB_CLIENT.save(this);
     }
 }

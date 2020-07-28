@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Fingerprint extends Document {
+
+    private static final CouchDbClient DB_CLIENT = CouchDBUtil.getDbClient(Fingerprint.class);
+
     private String base64Image;
 
     private String cachedTemplate;
@@ -51,10 +54,10 @@ public class Fingerprint extends Document {
 
     public void save(){
         if(this.getRevision() != null){
-            Response r = CouchDBUtil.getDbClient("fingerprint").update(this);
+            Response r = DB_CLIENT.update(this);
         }else {
             this.setDateTimeInLong(getCurrentTimeInMillis());
-            Response r = CouchDBUtil.getDbClient("fingerprint").save(this);
+            Response r = DB_CLIENT.save(this);
             this.setId(r.getId());
         }
 
@@ -67,7 +70,7 @@ public class Fingerprint extends Document {
     }
 
     public static Fingerprint find(String id){
-        return CouchDBUtil.getDbClient("fingerprint").find(Fingerprint.class, id);
+        return CouchDBUtil.getDbClient(Fingerprint.class).find(Fingerprint.class, id);
     }
 
     public void newCrossCheck(){
@@ -99,7 +102,7 @@ public class Fingerprint extends Document {
     }
 
     public static List<VerificationResult> crosscheckTemplate(Fingerprint probe){
-        View allDocs = CouchDBUtil.getDbClient("fingerprint").view("_all_docs");
+        View allDocs = DB_CLIENT.view("_all_docs");
         String nextParam = "";
         Page<Fingerprint> page;
         List<VerificationResult > hitList = new ArrayList<VerificationResult>();

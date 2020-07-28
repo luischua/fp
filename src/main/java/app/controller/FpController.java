@@ -2,9 +2,7 @@ package app.controller;
 
 import app.exception.RequestContext;
 import model.*;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import util.CrossCheckMain;
 
 import javax.servlet.http.HttpSession;;
-import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.util.List;
 

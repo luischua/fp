@@ -9,7 +9,7 @@ public class QrCodeTest {
         String id = "60063955ff3b45cd910fced46237d319";
         String filePath = "QR.png";
         try {
-            QrCode.writeQrCode(id, "QR.png", 250);
+            QrCode.writeQrCode(id, "QR.png");
             String decodedId = QrCode.readQRCode(filePath);
             Assertions.assertEquals(id, decodedId);
         } catch (Exception e) {

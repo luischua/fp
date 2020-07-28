@@ -2,10 +2,7 @@ package model;
 
 import com.machinezoo.sourceafis.FingerprintMatcher;
 import org.apache.commons.codec.binary.Base64;
-import org.lightcouch.Document;
-import org.lightcouch.Page;
-import org.lightcouch.Response;
-import org.lightcouch.View;
+import org.lightcouch.*;
 import util.CouchDBUtil;
 import util.FingerprintAnalyzer;
 
@@ -15,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Person extends Document {
+
+    private static final CouchDbClient DB_CLIENT = CouchDBUtil.getDbClient(Person.class);
+
     private String idImage;
     private String idImageExtension;
     private String qrImage;
@@ -84,9 +84,9 @@ public class Person extends Document {
         h.setUserId(userId);
         saveHistory.add(h);
         if(this.getRevision() != null){
-            Response r = CouchDBUtil.getDbClient("person").update(this);
+            Response r = DB_CLIENT.update(this);
         }else{
-            Response r = CouchDBUtil.getDbClient("person").save(this);
+            Response r = DB_CLIENT.save(this);
             this.setId(r.getId());
             this.setRevision(r.getRev());
         }
@@ -97,12 +97,12 @@ public class Person extends Document {
     }
 
     public static Person find(String id){
-        return CouchDBUtil.getDbClient("person").find(Person.class, id);
+        return DB_CLIENT.find(Person.class, id);
     }
 
     public static List<Person> findByName(String name){
         String query = "{ \"selector\": { \"name\": { \"$eq\": \""+name.toUpperCase()+"\" } }, \"limit\":10 }";
         System.out.println("Query:"+query);
-        return CouchDBUtil.getDbClient("person").findDocs(query,Person.class);
+        return DB_CLIENT.findDocs(query,Person.class);
     }
 }

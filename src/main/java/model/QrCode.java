@@ -20,19 +20,22 @@ import java.util.Map;
 
 public class QrCode {
 
-    public static byte[] generateQrCodeByte(String id) throws Exception{
-        String qrFilePath = id+".png";
-        QrCode.writeQrCode(id, qrFilePath,250);
-        return IOUtils.toByteArray(new FileInputStream(qrFilePath));
-    }
+    public static final int QR_SIZE = 250;
 
-    public static void writeQrCode(String myCodeText, String filePath, int size) throws WriterException, IOException {
-        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix byteMatrix = qrCodeWriter.encode(myCodeText, BarcodeFormat.QR_CODE, size,
-                size, getHintMap());
-        BufferedImage image = writeImage(byteMatrix);
+    public static void writeQrCode(String text, String filePath) throws WriterException, IOException {
+        BufferedImage image = getBufferedImage(text);
         String extension = FilenameUtils.getExtension(filePath);
         ImageIO.write(image, extension, new File(filePath));
+    }
+
+    public static byte[] generateQrCodeByte(String text) throws IOException, WriterException {
+        BufferedImage image = getBufferedImage(text);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write( image, "jpg", baos );
+        baos.flush();
+        byte[] imageInByte = baos.toByteArray();
+        baos.close();
+        return imageInByte;
     }
 
     public static String readQRCode(String filePath)
@@ -47,6 +50,13 @@ public class QrCode {
                         ImageIO.read(input))));
         Result qrCodeResult = new MultiFormatReader().decode(binaryBitmap);
         return qrCodeResult.getText();
+    }
+
+    private static BufferedImage getBufferedImage(String myCodeText) throws WriterException {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix byteMatrix = qrCodeWriter.encode(myCodeText, BarcodeFormat.QR_CODE, QrCode.QR_SIZE,
+                QrCode.QR_SIZE, getHintMap());
+        return writeImage(byteMatrix);
     }
 
     private static Map<EncodeHintType, Object> getHintMap() {

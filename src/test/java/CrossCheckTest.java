@@ -42,9 +42,9 @@ public class CrossCheckTest {
         Assertions.assertEquals(VerificationStatus.FAIL, Person.find(failedRegisteredPerson.getId()).getVerifiedStatus());
 
         //remove added records after testing
-        CouchDBUtil.getDbClient("person").remove(Person.find(registeredPerson.getId()));
-        CouchDBUtil.getDbClient("fingerprint").remove(Fingerprint.find(registeredPerson.getId()));
-        CouchDBUtil.getDbClient("person").remove(Person.find(failedRegisteredPerson.getId()));
-        CouchDBUtil.getDbClient("fingerprint").remove(Fingerprint.find(failedRegisteredPerson.getId()));
+        CouchDBUtil.getDbClient(Person.class).remove(Person.find(registeredPerson.getId()));
+        CouchDBUtil.getDbClient(Fingerprint.class).remove(Fingerprint.find(registeredPerson.getId()));
+        CouchDBUtil.getDbClient(Person.class).remove(Person.find(failedRegisteredPerson.getId()));
+        CouchDBUtil.getDbClient(Fingerprint.class).remove(Fingerprint.find(failedRegisteredPerson.getId()));
     }
 }
