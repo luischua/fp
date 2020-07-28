@@ -29,18 +29,13 @@ public class FpController {
         requestContext = new RequestContext();
     }
 
-    @PostMapping(
-            value = "/register",
-            produces = MediaType.IMAGE_JPEG_VALUE
-    )
-    public @ResponseBody
-    Person register(@RequestParam MultipartFile fingerprint,
+    @PostMapping("/register")
+    public Person register(@RequestParam MultipartFile fingerprint,
                     @RequestParam("idpic") MultipartFile idPic,
                     @RequestParam String name,
                     @RequestParam(value = "birthdate", required=false) LocalDate birthDate) throws Exception{
         requestContext.setClassMethod("FpController.register");
-        Fingerprint fp = new Fingerprint();
-        fp.setImage(fingerprint.getBytes());
+        Fingerprint fp = new Fingerprint(fingerprint.getBytes());
         fp.save();
         String id = fp.getId();
         Person createdPerson = new Person();

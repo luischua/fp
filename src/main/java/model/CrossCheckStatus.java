@@ -8,14 +8,14 @@ public class CrossCheckStatus {
     private LocalDateTime crossCheckStart;
     private LocalDateTime crossCheckEnd;
     private VerificationStatus status;
-    private List<String> hitId;
+    private List<VerificationResult> hitList;
 
-    public List<String> getHitId() {
-        return hitId;
+    public List<VerificationResult> getHitList() {
+        return hitList;
     }
 
-    public void setHitId(List<String> hitId) {
-        this.hitId = hitId;
+    public void setHitList(List<VerificationResult> hitList) {
+        this.hitList = hitList;
     }
 
     public VerificationStatus getStatus() {

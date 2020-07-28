@@ -1,5 +1,6 @@
 package model;
 
+import com.machinezoo.sourceafis.FingerprintMatcher;
 import org.apache.commons.codec.binary.Base64;
 import org.lightcouch.*;
 import util.CouchDBUtil;
@@ -17,9 +18,28 @@ public class Fingerprint extends Document {
 
     private long dateTimeInLong;
 
-    private static double threshold = 40;
-
     private List<CrossCheckStatus> crossCheckStatusList = new ArrayList<CrossCheckStatus>();
+
+    public Fingerprint(byte[] image){
+        base64Image = Base64.encodeBase64String(image);
+        cachedTemplate = Base64.encodeBase64String(FingerprintAnalyzer.getTemplateByte(image));
+    }
+
+    public String getImage() {
+        return base64Image;
+    }
+
+    public byte[] getImageByte(){
+        return Base64.decodeBase64(base64Image);
+    }
+
+    public String getCachedTemplate() {
+        return cachedTemplate;
+    }
+
+    public byte[] getCachedTemplateByte(){
+        return Base64.decodeBase64(cachedTemplate);
+    }
 
     public long getDateTimeInLong() {
         return dateTimeInLong;
@@ -27,47 +47,6 @@ public class Fingerprint extends Document {
 
     public void setDateTimeInLong(long dateTimeInLong) {
         this.dateTimeInLong = dateTimeInLong;
-    }
-
-    public String getCachedTemplate() {
-        return cachedTemplate;
-    }
-
-    public void newCrossCheck(){
-        CrossCheckStatus status = new CrossCheckStatus();
-        status.startCrossCheck();
-        List<String> hitList = Person.crosscheckTemplate(this.getCachedTemplateByte());
-        status.endCrossCheck();
-        Person currentPerson = Person.find(getId());
-        //remove same person
-        hitList.remove(getId());
-        if(hitList.size() == 0){
-            status.setStatus(VerificationStatus.SUCCESS);
-            currentPerson.setVerifiedStatus(VerificationStatus.SUCCESS);
-        }else{
-            status.setStatus(VerificationStatus.FAIL);
-            status.setHitId(hitList);
-            currentPerson.setVerifiedStatus(VerificationStatus.FAIL);
-        }
-        currentPerson.save();
-        crossCheckStatusList.add(status);
-    }
-
-    public String getBase64Image() {
-        return base64Image;
-    }
-
-    public byte[] getImage(){
-        return Base64.decodeBase64(base64Image);
-    }
-
-    public byte[] getCachedTemplateByte(){
-        return Base64.decodeBase64(cachedTemplate);
-    }
-
-    public void setImage(byte[] image){
-        base64Image = Base64.encodeBase64String(image);
-        cachedTemplate = Base64.encodeBase64String(FingerprintAnalyzer.getTemplateByte(image));
     }
 
     public void save(){
@@ -91,19 +70,56 @@ public class Fingerprint extends Document {
         return CouchDBUtil.getDbClient("fingerprint").find(Fingerprint.class, id);
     }
 
-    public boolean match(byte[] fingerprintBytes){
-        byte[] templateBytes = FingerprintAnalyzer.getTemplateByte(fingerprintBytes);
-        double score = FingerprintAnalyzer.getScoreComparingCachedTemplate(templateBytes, getCachedTemplateByte());
-        VerificationResult v = new VerificationResult();
-        v.setUserId(this.getId());
-        v.setBase64Image(Base64.encodeBase64String(fingerprintBytes));
-        v.setScore(score);
-        v.save();
-        return score > threshold;
+    public void newCrossCheck(){
+        CrossCheckStatus status = new CrossCheckStatus();
+        status.startCrossCheck();
+        List<VerificationResult> hitList = crosscheckTemplate(this);
+        status.endCrossCheck();
+        Person currentPerson = Person.find(getId());
+        if(hitList.size() == 0){
+            status.setStatus(VerificationStatus.SUCCESS);
+            currentPerson.setVerifiedStatus(VerificationStatus.SUCCESS);
+        }else{
+            status.setStatus(VerificationStatus.FAIL);
+            currentPerson.setVerifiedStatus(VerificationStatus.FAIL);
+            status.setHitList(hitList);
+        }
+        currentPerson.save();
+        crossCheckStatusList.add(status);
     }
 
-    public boolean matchTemplate(byte[] templateBytes){
-        double score = FingerprintAnalyzer.getScoreComparingCachedTemplate(templateBytes, getCachedTemplateByte());
-        return score > threshold;
+    public boolean match(byte[] fingerprintBytes){
+        FingerprintAnalyzer analyzer = new FingerprintAnalyzer(this.getCachedTemplateByte());
+        byte[] templateBytes = FingerprintAnalyzer.getTemplateByte(fingerprintBytes);
+        double score = analyzer.getScore(templateBytes);
+        VerificationResult v = new VerificationResult(this.getId(), score);
+        v.setBase64Image(Base64.encodeBase64String(fingerprintBytes));
+        v.save();
+        return score > FingerprintAnalyzer.THRESHOLD;
+    }
+
+    public static List<VerificationResult> crosscheckTemplate(Fingerprint probe){
+        View allDocs = CouchDBUtil.getDbClient("fingerprint").view("_all_docs");
+        String nextParam = "";
+        Page<Fingerprint> page;
+        List<VerificationResult > hitList = new ArrayList<VerificationResult>();
+        FingerprintAnalyzer analyzer = new FingerprintAnalyzer(probe.getCachedTemplateByte());
+        do {
+            page = allDocs.queryPage(10, null, Fingerprint.class);
+            List<Fingerprint> list = page.getResultList();
+            for(Fingerprint f : list){
+                if(!f.getId().equals(probe.getId())) {
+                    System.out.println("Matching" + f.getId());
+                    double score = analyzer.getScore(f.getCachedTemplateByte());
+                    if (score > FingerprintAnalyzer.THRESHOLD) {
+                        System.out.println("Hit" + f.getId());
+                        VerificationResult result = new VerificationResult(f.getId(), score);
+                        hitList.add(result);
+                    }
+                }
+            }
+            nextParam = page.getNextParam();
+        }while(page.isHasNext());
+        return hitList;
     }
 }

@@ -1,6 +1,7 @@
 import app.controller.FpController;
 import model.Fingerprint;
 import model.Person;
+import model.VerificationResult;
 import model.VerificationStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,12 @@ public class CrossCheckTest {
                         UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1));
 
         Person registeredPerson = controller.register(fingerprint, UtilTest.getIdPic(), "test 1", null);
-        List<String> people = Person.crosscheckTemplate(UtilTest.getTestTemplateByte(UtilTest.USER_12_SAMPLE_1));
+        Fingerprint f = new Fingerprint(UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1));
+        List<VerificationResult> people = Fingerprint.crosscheckTemplate(f);
         Assertions.assertTrue(people.size() > 0);
-        people = Person.crosscheckTemplate(UtilTest.getTestTemplateByte(UtilTest.USER_13_SAMPLE_1));
+
+        f = new Fingerprint(UtilTest.getTestPathByte(UtilTest.USER_13_SAMPLE_1));
+        people = Fingerprint.crosscheckTemplate(f);
         Assertions.assertTrue(people.size() == 0);
 
         Thread.sleep(CrossCheckMain.SLEEP_DURATION);

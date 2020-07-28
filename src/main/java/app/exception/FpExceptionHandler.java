@@ -27,9 +27,9 @@ public class FpExceptionHandler{
         requestContext.setException(exceptionString);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exceptionString);
     }
-
+    /*
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
     public String handleHttpMediaTypeNotAcceptableException() {
         return "acceptable MIME type:" + MediaType.APPLICATION_JSON_VALUE;
-    }
+    }*/
 }

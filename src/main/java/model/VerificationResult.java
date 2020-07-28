@@ -8,6 +8,11 @@ public class VerificationResult extends Document {
     private String userId;
     private double score;
 
+    public VerificationResult(String userId, double score){
+        this.userId = userId;
+        this.score = score;
+    }
+
     public String getBase64Image() {
         return base64Image;
     }
