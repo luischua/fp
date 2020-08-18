@@ -1,0 +1,2 @@
+On Setting > Http Proxy (set autodetect proxy settings) - this allow JIdea to use internet to search for plugin
+Follow setup Lombok plugin on https://www.baeldung.com/lombok-ide

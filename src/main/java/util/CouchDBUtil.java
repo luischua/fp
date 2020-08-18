@@ -1,10 +1,12 @@
 package util;
 
+import app.exception.FPConfigProperties;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.lightcouch.CouchDbClient;
+import org.lightcouch.CouchDbProperties;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -12,10 +14,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
 
 public class CouchDBUtil {
     static Map<Class, CouchDbClient> dbClientMap = new HashMap<Class, CouchDbClient>();
+
+    private static FPConfigProperties config = new FPConfigProperties();
+    public static void setMyConfig(FPConfigProperties config) {
+        System.out.println(config);
+        CouchDBUtil.config = config;
+    }
 
     private static GsonBuilder getGsonBuilder() {
         GsonBuilder builder = new GsonBuilder();
@@ -50,10 +57,15 @@ public class CouchDBUtil {
     public static CouchDbClient getDbClient(Class key){
         CouchDbClient client = dbClientMap.get(key);
         if(client == null){
-            String dbPropertiesFile = key.getSimpleName().toLowerCase() +".properties";
-            System.out.println("DBProperties:"+dbPropertiesFile);
+            String name = key.getSimpleName().toLowerCase();
+            String tablename = name+"_"+config.getType();
+            CouchDbProperties properties = new CouchDbProperties(tablename,
+                    true, "http", config.getHost(), 5984,
+                    config.getCouchDbUsername(), config.getCouchDbPassword());
+            properties.setConnectionTimeout(config.getTimeout());
+            properties.setMaxConnections(config.getMaxConn());
+            client = new CouchDbClient(properties);
             GsonBuilder builder = getGsonBuilder();
-            client = new CouchDbClient(dbPropertiesFile);
             client.setGsonBuilder(builder);
             dbClientMap.put(key, client);
         }

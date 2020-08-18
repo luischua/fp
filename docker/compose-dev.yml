@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  fp:
+    image: luischua/fp
+    ports:
+      - target: 8888
+        published: 8080
+        protocol: tcp
+        mode: host
+    links:
+      - "couchdb"
+    env_file:
+      - ./db.properties
+    volumes:
+      - type: bind
+        source: C:\Users\Brookfield\Downloads\fp_config
+        target: /config
+  couchdb:
+    image: couchdb
+    ports:
+      - target: 5984
+        published: 5900
+        protocol: tcp
+        mode: host
+    env_file:
+      - ./db.properties
+    volumes:
+      - type: bind
+        source: C:\Users\Brookfield\Downloads\couchdb_data
+        target: /opt/couchdb/data
+      - type: bind
+        source: C:\Users\Brookfield\Downloads\couchdb_config
+        target: /opt/couchdb/etc/local.d
+      - type: bind
+        source: C:\Users\Brookfield\Downloads\couchdb_logs
+        target: /opt/couchdb/log
