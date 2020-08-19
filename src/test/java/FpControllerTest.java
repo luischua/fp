@@ -2,6 +2,7 @@
 import app.controller.FpController;
 import model.Fingerprint;
 import model.Person;
+import model.Registration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,13 +17,9 @@ public class FpControllerTest {
     public void testController() throws Exception {
         FpController controller = new FpController();
         controller.newTestInstance();
-        MockMultipartFile fingerprint =
-                new MockMultipartFile(
-                        "fingerprint",
-                        UtilTest.USER_12_SAMPLE_1,
-                        null,
-                        UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1));
-        Person p = controller.register(fingerprint, UtilTest.getIdPic(), "test", LocalDate.of(1985,6,15));
+        MockMultipartFile fingerprint = UtilTest.getFingerprintPic();
+        Registration registration = controller.register(fingerprint, UtilTest.getIdPic(), "test", LocalDate.of(1985, 6, 15));
+        Person p = registration.getPerson();
         byte[] qrCodeByte = p.getQrImage();
         Assertions.assertTrue(controller.verify(fingerprint, p.getId()));
         Assertions.assertArrayEquals(qrCodeByte, controller.getQrCode(p.getId()));
@@ -39,5 +36,25 @@ public class FpControllerTest {
         //remove added records after testing
         CouchDBUtil.getDbClient(Person.class).remove(Person.find(p.getId()));
         CouchDBUtil.getDbClient(Fingerprint.class).remove(Fingerprint.find(p.getId()));
+    }
+
+    @Test
+    public void testControllerIdPicFailure() throws Exception {
+        FpController controller = new FpController();
+        controller.newTestInstance();
+        MockMultipartFile fingerprint = UtilTest.getFingerprintPic();
+        Registration registration = controller.register(fingerprint, UtilTest.getIdPic(UtilTest.NO_FACE_SAMPLE), "test", LocalDate.of(1985, 6, 15));
+        Assertions.assertEquals(Registration.NO_FACE, registration.getError());
+        registration = controller.register(fingerprint, UtilTest.getIdPic(UtilTest.MULTIPLE_FACE_SAMPLE), "test", LocalDate.of(1985, 6, 15));
+        Assertions.assertEquals(Registration.MULTIPLE_FACE, registration.getError());
+    }
+
+    @Test
+    public void testControllerFingerprintFailure() throws Exception {
+        FpController controller = new FpController();
+        controller.newTestInstance();
+        MockMultipartFile fingerprint = UtilTest.getFingerprintPic(UtilTest.ID_SAMPLE);
+        Registration registration = controller.register(fingerprint, UtilTest.getIdPic(), "test", LocalDate.of(1985, 6, 15));
+        Assertions.assertEquals(Registration.FINGERPRINT_INVALID, registration.getError());
     }
 }

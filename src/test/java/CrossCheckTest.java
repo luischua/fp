@@ -1,8 +1,5 @@
 import app.controller.FpController;
-import model.Fingerprint;
-import model.Person;
-import model.VerificationResult;
-import model.VerificationStatus;
+import model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
@@ -25,7 +22,8 @@ public class CrossCheckTest {
                         null,
                         UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1));
 
-        Person registeredPerson = controller.register(fingerprint, UtilTest.getIdPic(), "test 1", null);
+        Registration registration = controller.register(fingerprint, UtilTest.getIdPic(), "test 1", null);
+        Person registeredPerson = registration.getPerson();
         Fingerprint f = new Fingerprint(UtilTest.getTestPathByte(UtilTest.USER_12_SAMPLE_1));
         List<VerificationResult> people = Fingerprint.crosscheckTemplate(f);
         Assertions.assertTrue(people.size() > 0);
@@ -36,8 +34,8 @@ public class CrossCheckTest {
 
         Thread.sleep(CrossCheckMain.SLEEP_DURATION);
         Assertions.assertEquals(VerificationStatus.SUCCESS, Person.find(registeredPerson.getId()).getVerifiedStatus());
-        Person failedRegisteredPerson =controller.register(fingerprint, UtilTest.getIdPic(), "test 2", null);
-
+        Registration failedRegistration = controller.register(fingerprint, UtilTest.getIdPic(), "test 2", null);
+        Person failedRegisteredPerson = failedRegistration.getPerson();
         Thread.sleep(CrossCheckMain.SLEEP_DURATION);
         Assertions.assertEquals(VerificationStatus.FAIL, Person.find(failedRegisteredPerson.getId()).getVerifiedStatus());
 

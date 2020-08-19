@@ -38,23 +38,23 @@ public class FpController {
         requestContext.setClassMethod("FpController.register");
         Registration r = new Registration();
         if(!Fingerprint.checkIfTestFingerprintExist()){
-            r.setError("Test Fingerprint on server is missing");
+            r.setError(Registration.MISSING_TEST_FINGERPRINT);
             return r;
         }
         Fingerprint fp = new Fingerprint(fingerprint.getBytes());
         if(!fp.checkIfValidFingerprint()){
-            r.setError("Provided image is not a fingerprint");
+            r.setError(Registration.FINGERPRINT_INVALID);
             return r;
         }
         String idExtension = FilenameUtils.getExtension(idPic.getOriginalFilename());
         ByteArrayInputStream bais = new ByteArrayInputStream(idPic.getInputStream().readAllBytes());
         List<byte[]> faceList = ImageUtil.getFace(bais);
         if(faceList.size() == 0) {
-            r.setError("No Face Detected");
+            r.setError(Registration.NO_FACE);
             return r;
         }
         if(faceList.size() > 1) {
-            r.setError("Multiple Face Detected");
+            r.setError(Registration.MULTIPLE_FACE);
             //r.add(faceList);
             return r;
         }
