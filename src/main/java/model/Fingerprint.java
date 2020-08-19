@@ -23,6 +23,16 @@ public class Fingerprint extends Document {
 
     private List<CrossCheckStatus> crossCheckStatusList = new ArrayList<CrossCheckStatus>();
 
+    private static byte[] testFingerprintBytes;
+    static{
+        try {
+            byte[] fingerprintBytes = Fingerprint.class.getClassLoader().getResourceAsStream("012_1_1.tif").readAllBytes();
+            testFingerprintBytes = FingerprintAnalyzer.getTemplateByte(fingerprintBytes);
+        }catch(Exception e){
+
+        }
+    }
+
     public Fingerprint(byte[] image){
         base64Image = Base64.encodeBase64String(image);
         cachedTemplate = Base64.encodeBase64String(FingerprintAnalyzer.getTemplateByte(image));
@@ -95,10 +105,37 @@ public class Fingerprint extends Document {
         FingerprintAnalyzer analyzer = new FingerprintAnalyzer(this.getCachedTemplateByte());
         byte[] templateBytes = FingerprintAnalyzer.getTemplateByte(fingerprintBytes);
         double score = analyzer.getScore(templateBytes);
-        VerificationResult v = new VerificationResult(this.getId(), score);
+        VerificationResult v = new VerificationResult();
+        v.setUserId(this.getId());
+        v.setScore(score);
         v.setBase64Image(Base64.encodeBase64String(fingerprintBytes));
+        v.setType("match");
         v.save();
-        return score > FingerprintAnalyzer.THRESHOLD;
+        return score > FingerprintAnalyzer.MATCH_THRESHOLD;
+    }
+
+    public static boolean checkIfTestFingerprintExist(){
+        if(testFingerprintBytes == null){
+            return false;
+        }
+        return true;
+    }
+    public boolean checkIfValidFingerprint(){
+        if(!checkIfTestFingerprintExist()){
+            return false;
+        }
+        FingerprintAnalyzer analyzer = new FingerprintAnalyzer(testFingerprintBytes);
+        double score = analyzer.getScore(this.getCachedTemplateByte());
+        System.out.println("SSSSS"+score);
+        if(score < FingerprintAnalyzer.NOT_A_FINGERPRINT_THRESHOLD){
+            VerificationResult v = new VerificationResult();
+            v.setScore(score);
+            v.setBase64Image(this.base64Image);
+            v.setType("validity");
+            v.save();
+            return false;
+        }
+        return true;
     }
 
     public static List<VerificationResult> crosscheckTemplate(Fingerprint probe){
@@ -114,9 +151,11 @@ public class Fingerprint extends Document {
                 if(!f.getId().equals(probe.getId())) {
                     System.out.println("Matching" + f.getId());
                     double score = analyzer.getScore(f.getCachedTemplateByte());
-                    if (score > FingerprintAnalyzer.THRESHOLD) {
+                    if (score > FingerprintAnalyzer.MATCH_THRESHOLD) {
                         System.out.println("Hit" + f.getId());
-                        VerificationResult result = new VerificationResult(f.getId(), score);
+                        VerificationResult result = new VerificationResult();
+                        result.setUserId(f.getId());
+                        result.setScore(score);
                         hitList.add(result);
                     }
                 }

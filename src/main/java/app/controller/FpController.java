@@ -37,11 +37,15 @@ public class FpController {
                     @RequestParam(value = "birthdate", required=false) LocalDate birthDate) throws Exception{
         requestContext.setClassMethod("FpController.register");
         Registration r = new Registration();
+        if(!Fingerprint.checkIfTestFingerprintExist()){
+            r.setError("Test Fingerprint on server is missing");
+            return r;
+        }
         Fingerprint fp = new Fingerprint(fingerprint.getBytes());
-        fp.save();
-        String id = fp.getId();
-        Person createdPerson = new Person();
-        createdPerson.setId(id);
+        if(!fp.checkIfValidFingerprint()){
+            r.setError("Provided image is not a fingerprint");
+            return r;
+        }
         String idExtension = FilenameUtils.getExtension(idPic.getOriginalFilename());
         ByteArrayInputStream bais = new ByteArrayInputStream(idPic.getInputStream().readAllBytes());
         List<byte[]> faceList = ImageUtil.getFace(bais);
@@ -56,15 +60,16 @@ public class FpController {
         }
         bais.reset();
         byte[] resizedImage = ImageUtil.getResizeImage(bais);
+        fp.save();
+        String id = fp.getId();
+        Person createdPerson = new Person();
+        createdPerson.setId(id);
         createdPerson.setIdImage(resizedImage, idExtension);
         createdPerson.setName(name);
         createdPerson.setBirthDate(birthDate);
         createdPerson.setQrImage(QrCode.generateQrCodeByte(id));
         createdPerson.save("luis");
         CrossCheckMain.getInstance().addId(fp.getId());
-        System.out.println("BirthDate"+birthDate);
-        System.out.println("Age"+ createdPerson.getAge());
-        System.out.println("ID filename"+ idPic.getOriginalFilename());
         r.setPerson(createdPerson);
         return r;
     }

@@ -6,7 +6,8 @@ import com.machinezoo.sourceafis.FingerprintTemplate;
 
 public class FingerprintAnalyzer {
 
-    public static final double THRESHOLD = 40;
+    public static final double MATCH_THRESHOLD = 40;
+    public static final double NOT_A_FINGERPRINT_THRESHOLD = 2;
 
     private FingerprintMatcher matcher;
 
