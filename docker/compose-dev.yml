@@ -4,7 +4,7 @@ services:
   fp:
     image: luischua/fp
     ports:
-      - target: 8888
+      - target: 8800
         published: 8080
         protocol: tcp
         mode: host
