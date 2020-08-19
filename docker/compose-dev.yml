@@ -11,8 +11,8 @@ services:
     links:
       - "couchdb"
     environment:
-      - JAVA_OPTIONS='-Xmx512m'
-      - PROPERTIES_FILENAME=fp
+      - "JAVA_OPTIONS=-Xmx512m"
+      - "SPRING_BOOT_OPTIONS=-Dspring.config.location=file:/config/fp.properties -Dlogging.config=file:/config/logback-spring.xml"
     volumes:
       - type: bind
         source: C:\Users\Brookfield\Downloads\fp_config
