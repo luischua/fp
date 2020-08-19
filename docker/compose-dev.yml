@@ -12,6 +12,9 @@ services:
       - "couchdb"
     env_file:
       - ./db.properties
+    environment:
+      - JAVA_OPTIONS='-Xmx512m'
+      - PROPERTIES_FILENAME=fp
     volumes:
       - type: bind
         source: C:\Users\Brookfield\Downloads\fp_config
