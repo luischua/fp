@@ -10,8 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 import util.CrossCheckMain;
 
 import javax.servlet.http.HttpSession;;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.List;
+import net.coobird.thumbnailator.Thumbnails;
+import util.ImageUtil;
 
 @RestController
 public class FpController {
@@ -27,18 +31,32 @@ public class FpController {
     }
 
     @PostMapping("/register")
-    public Person register(@RequestParam MultipartFile fingerprint,
+    public Registration register(@RequestParam MultipartFile fingerprint,
                     @RequestParam("idpic") MultipartFile idPic,
                     @RequestParam String name,
                     @RequestParam(value = "birthdate", required=false) LocalDate birthDate) throws Exception{
         requestContext.setClassMethod("FpController.register");
+        Registration r = new Registration();
         Fingerprint fp = new Fingerprint(fingerprint.getBytes());
         fp.save();
         String id = fp.getId();
         Person createdPerson = new Person();
         createdPerson.setId(id);
         String idExtension = FilenameUtils.getExtension(idPic.getOriginalFilename());
-        createdPerson.setIdImage(idPic.getBytes(), idExtension);
+        ByteArrayInputStream bais = new ByteArrayInputStream(idPic.getInputStream().readAllBytes());
+        List<byte[]> faceList = ImageUtil.getFace(bais);
+        if(faceList.size() == 0) {
+            r.setError("No Face Detected");
+            return r;
+        }
+        if(faceList.size() > 1) {
+            r.setError("Multiple Face Detected");
+            //r.add(faceList);
+            return r;
+        }
+        bais.reset();
+        byte[] resizedImage = ImageUtil.getResizeImage(bais);
+        createdPerson.setIdImage(resizedImage, idExtension);
         createdPerson.setName(name);
         createdPerson.setBirthDate(birthDate);
         createdPerson.setQrImage(QrCode.generateQrCodeByte(id));
@@ -47,7 +65,8 @@ public class FpController {
         System.out.println("BirthDate"+birthDate);
         System.out.println("Age"+ createdPerson.getAge());
         System.out.println("ID filename"+ idPic.getOriginalFilename());
-        return createdPerson;
+        r.setPerson(createdPerson);
+        return r;
     }
 
     @GetMapping(

@@ -18,6 +18,27 @@ dependencies {
     implementation 'org.lightcouch:lightcouch:0.2.0'
     implementation 'com.google.zxing:core:3.3.2'
     implementation 'com.google.zxing:javase:3.3.2'
+    implementation 'net.coobird:thumbnailator:0.4.12'
+    implementation ('org.openimaj:faces:1.3.10'){
+        //exclude missing dependency
+        exclude group: 'de.bwaldvogel', module: 'liblinear-dense'
+        exclude group: 'vigna.dsi.unimi.it', module: 'jal'
+        exclude group: 'org.bethecoder', module: 'ascii-table'
+        exclude group: 'uk.ac.ed.ph.snuggletex'
+        exclude group: 'com.flickr4java', module: 'flickr4java'
+        exclude group: 'javax.media', module: 'jai-core'
+        exclude group: 'com.sun.media', module: 'jai-codec'
+        exclude group: 'jgrapht', module: 'jgrapht'
+        exclude group: 'net.sourceforge.jmatio', module: 'jmatio'
+        exclude group: 'com.nativelibs4java', module: 'bridj'
+        exclude group: 'xuggle', module: 'xuggle-xuggler-lgpl'
+        exclude group: 'com.lowagie', module: 'itext'
+        //exclude big jar files
+        exclude group: 'com.ibm.icu', module: 'icu4j'
+        exclude group: 'net.sf.jasperreports', module: 'jasperreports'
+    }
+    //dependency of openimaj
+    implementation 'log4j:log4j:1.2.17'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
