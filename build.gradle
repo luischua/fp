@@ -5,6 +5,11 @@ plugins {
     id "io.freefair.lombok" version "5.1.1"
 }
 
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 group 'org.lulu'
 version '1.0-SNAPSHOT'
 
