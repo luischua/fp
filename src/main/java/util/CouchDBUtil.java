@@ -61,7 +61,7 @@ public class CouchDBUtil {
             System.out.println("getDBClient ("+name+"): "+config);
             String tablename = name+"_"+config.getType();
             CouchDbProperties properties = new CouchDbProperties(tablename,
-                    true, "http", config.getHost(), 5984,
+                    true, "http", config.getHost(), config.getPort(),
                     config.getCouchDbUsername(), config.getCouchDbPassword());
             properties.setConnectionTimeout(config.getTimeout());
             properties.setMaxConnections(config.getMaxConn());

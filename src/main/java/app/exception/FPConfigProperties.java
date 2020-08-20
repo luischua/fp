@@ -24,4 +24,6 @@ public class FPConfigProperties {
     private String type = "test";
     @Value("${HOST}")
     private String host = "127.0.0.1";
+    @Value("${PORT}")
+    private int port = 5984;
 }
