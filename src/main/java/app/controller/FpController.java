@@ -1,21 +1,24 @@
 package app.controller;
 
 import app.exception.RequestContext;
-import model.*;
+import model.Fingerprint;
+import model.Person;
+import model.QrCode;
+import model.Registration;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import util.CrossCheckMain;
+import util.ImageUtil;
 
-import javax.servlet.http.HttpSession;;
+import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.List;
-import net.coobird.thumbnailator.Thumbnails;
-import util.ImageUtil;
+
+;
 
 @RestController
 public class FpController {

@@ -7,12 +7,9 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.imageio.ImageIO;
-import java.awt.Graphics2D;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;

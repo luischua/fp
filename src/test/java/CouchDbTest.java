@@ -1,6 +1,5 @@
 import model.Fingerprint;
 import model.Person;
-import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lightcouch.Attachment;
@@ -8,7 +7,6 @@ import org.lightcouch.CouchDbClient;
 import org.lightcouch.Params;
 import org.lightcouch.Response;
 
-import java.io.InputStream;
 import java.util.List;
 
 public class CouchDbTest {

@@ -20,7 +20,7 @@ public class CouchDBUtil {
 
     private static FPConfigProperties config = new FPConfigProperties();
     public static void setMyConfig(FPConfigProperties config) {
-        System.out.println(config);
+        System.out.println("setMyConfig: "+config);
         CouchDBUtil.config = config;
     }
 
@@ -58,6 +58,7 @@ public class CouchDBUtil {
         CouchDbClient client = dbClientMap.get(key);
         if(client == null){
             String name = key.getSimpleName().toLowerCase();
+            System.out.println("getDBClient ("+name+"): "+config);
             String tablename = name+"_"+config.getType();
             CouchDbProperties properties = new CouchDbProperties(tablename,
                     true, "http", config.getHost(), 5984,

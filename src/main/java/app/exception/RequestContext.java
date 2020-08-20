@@ -1,8 +1,5 @@
 package app.exception;
 
-import model.VerificationResult;
-import org.lightcouch.CouchDbClient;
-import org.lightcouch.Response;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 import util.CouchDBUtil;
@@ -12,8 +9,6 @@ import java.time.LocalDateTime;
 @RequestScope
 @Component
 public class RequestContext {
-
-    private static final CouchDbClient DB_CLIENT = CouchDBUtil.getDbClient(RequestContext.class);
 
     private String exception;
     private LocalDateTime start;
@@ -62,6 +57,6 @@ public class RequestContext {
     }
 
     public void save(){
-        DB_CLIENT.save(this);
+        CouchDBUtil.getDbClient(RequestContext.class).save(this);
     }
 }

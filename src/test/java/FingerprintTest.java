@@ -1,8 +1,6 @@
-
-import com.machinezoo.sourceafis.FingerprintMatcher;
-import util.FingerprintAnalyzer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import util.FingerprintAnalyzer;
 
 public class FingerprintTest{
     @Test

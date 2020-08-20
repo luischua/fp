@@ -1,8 +1,6 @@
 package app.exception;
 
-import app.exception.FPConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import util.CouchDBUtil;
 

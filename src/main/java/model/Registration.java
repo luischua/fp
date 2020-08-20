@@ -1,9 +1,10 @@
 package model;
 
-import org.apache.commons.codec.binary.Base64;
-import java.util.List;
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.codec.binary.Base64;
+
+import java.util.List;
 
 @Data
 @ToString

@@ -1,10 +1,10 @@
 package model;
 
-import com.machinezoo.sourceafis.FingerprintMatcher;
 import org.apache.commons.codec.binary.Base64;
-import org.lightcouch.*;
+import org.lightcouch.CouchDbClient;
+import org.lightcouch.Document;
+import org.lightcouch.Response;
 import util.CouchDBUtil;
-import util.FingerprintAnalyzer;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

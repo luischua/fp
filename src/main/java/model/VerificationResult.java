@@ -1,12 +1,11 @@
 package model;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Document;
 import util.CouchDBUtil;
-
-import lombok.Data;
-import lombok.ToString;
 
 @Data
 @ToString

@@ -1,10 +1,7 @@
 package util;
 
-import model.CrossCheckStatus;
 import model.Fingerprint;
-import model.Person;
 
-import java.time.LocalDate;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 

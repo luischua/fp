@@ -1,6 +1,5 @@
 package model;
 
-import com.machinezoo.sourceafis.FingerprintMatcher;
 import org.apache.commons.codec.binary.Base64;
 import org.lightcouch.*;
 import util.CouchDBUtil;

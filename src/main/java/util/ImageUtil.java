@@ -1,17 +1,15 @@
 package util;
 
 import net.coobird.thumbnailator.Thumbnails;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.openimaj.image.FImage;
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.processing.face.detection.DetectedFace;
 import org.openimaj.image.processing.face.detection.HaarCascadeDetector;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageUtil{
     public static final int WIDTH = 50;

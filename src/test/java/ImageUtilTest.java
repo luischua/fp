@@ -1,9 +1,8 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import util.ImageUtil;
-import java.util.List;
 
-import java.io.FileInputStream;
+import java.util.List;
 
 public class ImageUtilTest {
     @Test
