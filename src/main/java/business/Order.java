@@ -5,12 +5,14 @@ import lombok.Setter;
 import org.lightcouch.Document;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 @Getter
 @Setter
 public class Order extends Document {
+    private Customer customer;
     private long receiptNo;
     private LocalDateTime createTime;
     List<ProductRecord> products;
@@ -25,6 +27,7 @@ public class Order extends Document {
         record.setName(p.getName());
         record.setPrice(p.getPrice());
         record.setQuantity(quantity);
+        record.setDiscount(p.getDiscount(customer));
         if(products == null){
             products = new ArrayList<ProductRecord>();
         }
@@ -42,6 +45,7 @@ public class Order extends Document {
     public BigDecimal getTotal(){
         BigDecimal total = new BigDecimal(0);
         for(ProductRecord record: products){
+            //System.out.println(record);
             total = total.add(record.getTotal());
         }
         return total;
