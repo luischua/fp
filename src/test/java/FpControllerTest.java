@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import util.CouchDBUtil;
+import util.UtilTest;
 
 import java.time.LocalDate;
 

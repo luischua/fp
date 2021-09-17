@@ -1,6 +1,7 @@
+package util;
+
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.mock.web.MockMultipartFile;
-import util.FingerprintAnalyzer;
 
 import java.io.InputStream;
 import java.util.Scanner;

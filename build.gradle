@@ -46,6 +46,11 @@ dependencies {
     implementation 'log4j:log4j:1.2.17'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    //jxl
+    implementation 'org.jxls:jxls:2.10.0'
+    implementation 'org.jxls:jxls-poi:2.10.0'
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }

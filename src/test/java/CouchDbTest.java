@@ -6,6 +6,7 @@ import org.lightcouch.Attachment;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Params;
 import org.lightcouch.Response;
+import util.UtilTest;
 
 import java.util.List;
 

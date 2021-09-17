@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import util.FingerprintAnalyzer;
+import util.UtilTest;
 
 public class FingerprintTest{
     @Test
