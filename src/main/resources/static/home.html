@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    <!-- Add Bootstrap and Bootstrap-Vue CSS to the <head> section -->
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"/>
+</head>
+<body>
+    <div id="app">
+        <b-card no-body>
+            <b-tabs pills card vertical lazy>
+                <b-tab title="Customer" active>
+                    <b-button id="show-btn" @click="newForm">New</b-button>
+                    <b-modal ref="bv-modal-customer" hide-footer>
+                        <b-form @submit="onSubmit">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="customerForm.name" placeholder="Enter name"/>
+                            </b-form-group>
+                            <b-form-group label="Address:">
+                                <b-form-input v-model="customerForm.address"/>
+                            </b-form-group>
+                            <b-form-group label="Contact:">
+                                <b-form-input v-model="customerForm.contact"/>
+                            </b-form-group>
+                            <b-form-group label="Tel:">
+                                <b-form-input v-model="customerForm.telephone"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                            <b-form-input v-model="customerForm.table" value="Customer" style="display:none;"/>
+                            <b-form-input v-model="customerForm.id" style="display:none;"/>
+                            <b-form-input v-model="customerForm.revision" style="display:none;"/>
+                        </b-form>
+                    </b-modal>
+                    <b-table striped hover :items="customerList" :fields="customerFields" @row-dblclicked="edit">
+                        <template #cell(edit)="data">
+                            <b>{{ data.index + 1 }}</b>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value.toUpperCase() }}
+                        </template>
+                        <template #cell(address)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(telephone)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(contact)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
+                <b-tab title="Order"><b-card-text>Tab contents 2</b-card-text></b-tab>
+                <b-tab title="Product"><b-card-text>Tab contents 3</b-card-text></b-tab>
+                <b-tab title="Tab 4"><b-card-text>Tab contents 4</b-card-text></b-tab>
+                <b-tab title="Tab 6"><b-card-text>Tab contents 6</b-card-text></b-tab>
+            </b-tabs>
+        </b-card>
+    </div>
+
+    <!-- Add Vue and Bootstrap-Vue JS just before the closing </body> tag -->
+    <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+    <!-- axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                defaultForm: {
+                  table: 'Customer'
+                },
+                customerForm: {
+                  table: 'Customer'
+                },
+                customerFields: [
+                  {
+                    key: 'edit',
+                    label: ''
+                  },
+                  {
+                    key: 'name',
+                    sortable: true
+                  },
+                  {
+                    key: 'address'
+                  },
+                  {
+                    key: 'contact',
+                    label: 'Contact Person'
+                  },
+                  {
+                    key: 'telephone',
+                    label: 'Tel Number'
+                  }
+                ],
+                customerList: function (ctx, callback) {
+                    console.log("Loading...")
+                    axios.get('/list?table=Customer')
+                    .then((response)=>{
+                        console.log(response)
+                        callback(response.data)
+                    })
+                    .catch((error)=>{
+                        console.log(error)
+                        callback([])
+                    })
+                }
+            },
+            methods: {
+                newForm: function (item) {
+                    Object.assign(this.customerForm, this.defaultForm)
+                    this.$refs['bv-modal-customer'].show()
+                },
+                edit: function (item) {
+                    const {attachments,narrative,...copyForm} = item;
+                    console.log(copyForm)
+                    Object.assign(this.customerForm, copyForm)
+                    console.log(this.customerForm)
+                    this.$refs['bv-modal-customer'].show()
+                },
+                onSubmit(event) {
+                    event.preventDefault()
+                    console.log('Submit')
+                    console.log(this.customerForm)
+                    axios.post(
+                        "/saveToDb",
+                        this.customerForm
+                      )
+                      .then(response => {
+                        console.log(response)
+                      })
+                      .catch(error => {
+                        console.log(error);
+                      });
+                }
+            }
+         });
+    </script>
+</body>
+</html>

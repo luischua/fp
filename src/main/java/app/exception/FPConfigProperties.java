@@ -4,12 +4,14 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties()
 @Data
 @ToString
+@PropertySource("classpath:fp.properties")
 public class FPConfigProperties {
     //config initialize to test values
     @Value("${COUCHDB_USER}")

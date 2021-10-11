@@ -2,12 +2,15 @@ package app.controller;
 
 import app.exception.RequestContext;
 import business.CouchDocument;
+import business.SaveResult;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import util.BusinessUtil;
 import util.CouchDBUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -41,23 +45,24 @@ public class BusinessController {
     }
 
     @PostMapping("/saveToDb")
-    public CouchDocument saveToDb(HttpServletRequest request) {
-        Set<String> keys = request.getParameterMap().keySet();
+    public SaveResult saveToDb(@RequestBody Map<String, Object> request) {
+        SaveResult r = new SaveResult();
+        Set<String> keys = request.keySet();
         try {
-            String table = request.getParameter(TABLE_KEY);
+            System.out.println("Paramter set:"+request.keySet());
+            String table = (String)request.get(TABLE_KEY);
             String tableProperties = table.concat(".properties");
             String tableClass = "business.".concat(table);
-            CouchDbClient dbClient = new CouchDbClient(tableProperties);
-            CouchDocument d = null;
-            String id = request.getParameter(ID_KEY);
             Class clz = Class.forName(tableClass);
+            CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
+            CouchDocument d = null;
+            String id = (String)request.get(ID_KEY);
             if(id == null) {
                 d = (CouchDocument) clz.getDeclaredConstructor().newInstance();
                 d.addNarrative("Created;");
             }else{
-                CouchDbClient client = CouchDBUtil.getDbClient(clz);
-                d = (CouchDocument) client.find(clz, id);
-                String revision = request.getParameter(REVISION_KEY);
+                d = (CouchDocument) dbClient.find(clz, id);
+                String revision = (String)request.get(REVISION_KEY);
                 System.out.println("From DB Revision: "+d.getRevision());
                 System.out.println("Passed from HTTP: "+revision);
                 if(!revision.equals(d.getRevision())){
@@ -67,7 +72,7 @@ public class BusinessController {
             }
             for (String k : keys) {
                 if (!IGNORE_KEY_LIST.contains(k)) {
-                    callSetter(d, k, request.getParameter(k));
+                    callSetter(d, k, (String)request.get(k));
                 }
             }
             System.out.println("Save to DB: " + d);
@@ -79,11 +84,13 @@ public class BusinessController {
             }
             d.setId(response.getId());
             d.setRevision(response.getRev());
-            return d;
+            r.setResult(d);
+
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            r.addError(BusinessUtil.convertStackTraceToString(e));
         }
+        return r;
     }
 
     private void callSetter(Object obj, String fieldName, String value) throws Exception {
@@ -101,7 +108,6 @@ public class BusinessController {
     public List list(HttpServletRequest request) {
         String table = request.getParameter(TABLE_KEY);
         String tableProperties = table.concat(".properties");
-        CouchDbClient dbClient = new CouchDbClient(tableProperties);
         String page = request.getParameter(PAGE_KEY);
         String rowsString = request.getParameter(ROWS_KEY);
         int rows = 100;
@@ -113,8 +119,10 @@ public class BusinessController {
         Class clz;
         try{
             clz = Class.forName(tableClass);
+            CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
             documentList =  dbClient.view("_all_docs").queryPage(rows, page, clz).getResultList();
         }catch (Exception e){
+            e.printStackTrace();
         }
         return documentList;
     }
