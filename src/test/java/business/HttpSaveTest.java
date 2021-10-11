@@ -6,31 +6,33 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class HttpSaveTest {
 
     @Test
     public void testSaveOnBusinessController() {
         //create
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
-        request.addParameter(BusinessController.TABLE_KEY, "Customer");
-        request.addParameter("name", "Luis");
-        request.addParameter("address", "QC");
-        request.addParameter("terms", "4");
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put(BusinessController.TABLE_KEY, "Customer");
+        request.put("name", "Luis");
+        request.put("address", "QC");
+        request.put("terms", "4");
         //next parameters should be ignored
-        request.addParameter("revision", "2");
-        request.addParameter("narrative", "Ignore");
+        request.put("revision", "2");
+        request.put("narrative", "Ignore");
         BusinessController b = new BusinessController();
-        CouchDocument d = b.saveToDb(request);
+        CouchDocument d = b.saveToDb(request).getResult();
         Assertions.assertNotNull(d);
 
         //modify
-        MockHttpServletRequest modifyRequest = new MockHttpServletRequest("POST", "");
-        modifyRequest.addParameter(BusinessController.TABLE_KEY, "Customer");
-        modifyRequest.addParameter("name", "Luis Edited");
-        modifyRequest.addParameter("id", d.getId());
-        modifyRequest.addParameter("revision", d.getRevision());
-        CouchDocument edited = b.saveToDb(modifyRequest);
+        Map<String, Object> modifyRequest = new HashMap<String, Object>();
+        modifyRequest.put(BusinessController.TABLE_KEY, "Customer");
+        modifyRequest.put("name", "Luis Edited");
+        modifyRequest.put("id", d.getId());
+        modifyRequest.put("revision", d.getRevision());
+        CouchDocument edited = b.saveToDb(modifyRequest).getResult();
         Assertions.assertNotNull(edited);
     }
 
