@@ -1,11 +1,13 @@
 package business;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.lightcouch.CouchDbClient;
 import util.CouchDBUtil;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 @ToString(callSuper=true)
 public class Company extends CouchDocument{
     private String name;

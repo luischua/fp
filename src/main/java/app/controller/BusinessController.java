@@ -3,6 +3,7 @@ package app.controller;
 import app.exception.RequestContext;
 import business.CouchDocument;
 import business.SaveResult;
+import org.jsoup.helper.StringUtil;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,34 +46,42 @@ public class BusinessController {
     }
 
     @PostMapping("/saveToDb")
-    public SaveResult saveToDb(@RequestBody Map<String, Object> request) {
+    public SaveResult saveToDb(@RequestBody Map<String, String> request) {
         SaveResult r = new SaveResult();
         Set<String> keys = request.keySet();
         try {
             System.out.println("Paramter set:"+request.keySet());
-            String table = (String)request.get(TABLE_KEY);
+            String table = request.get(TABLE_KEY);
+            if(StringUtil.isBlank(table)){
+                r.addError( "table parameter missing");
+                return r;
+            }
             String tableProperties = table.concat(".properties");
             String tableClass = "business.".concat(table);
             Class clz = Class.forName(tableClass);
             CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
             CouchDocument d = null;
-            String id = (String)request.get(ID_KEY);
+            String id = request.get(ID_KEY);
             if(id == null) {
                 d = (CouchDocument) clz.getDeclaredConstructor().newInstance();
                 d.addNarrative("Created;");
             }else{
                 d = (CouchDocument) dbClient.find(clz, id);
-                String revision = (String)request.get(REVISION_KEY);
+                String revision = request.get(REVISION_KEY);
                 System.out.println("From DB Revision: "+d.getRevision());
                 System.out.println("Passed from HTTP: "+revision);
                 if(!revision.equals(d.getRevision())){
-                    throw new Exception("Wrong Revision");
+                    r.addError( "Data Updated by other user. Form updated to the latest");
+                    r.setRevisionError(true);
+                    r.setResult(d);
+                    return r;
+                }else {
+                    d.addNarrative("Updated by on");
                 }
-                d.addNarrative("Updated by on");
             }
             for (String k : keys) {
                 if (!IGNORE_KEY_LIST.contains(k)) {
-                    callSetter(d, k, (String)request.get(k));
+                    callSetter(d, k, request.get(k), r);
                 }
             }
             System.out.println("Save to DB: " + d);
@@ -88,19 +97,29 @@ public class BusinessController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            r.addError(BusinessUtil.convertStackTraceToString(e));
+            r.setStackTrace(BusinessUtil.convertStackTraceToString(e));
         }
         return r;
     }
 
-    private void callSetter(Object obj, String fieldName, String value) throws Exception {
-        PropertyDescriptor pd = new PropertyDescriptor(fieldName, obj.getClass());
-        //System.out.println("Type: "pd.getPropertyType().getTypeName());
-        String type = pd.getPropertyType().getTypeName();
-        if (type.equals("int")) {
-            pd.getWriteMethod().invoke(obj, Integer.parseInt(value));
-        } else {
-            pd.getWriteMethod().invoke(obj, value);
+    private void callSetter(Object obj, String fieldName, String value, SaveResult r) throws Exception {
+        if(value != null) {
+            PropertyDescriptor pd = new PropertyDescriptor(fieldName, obj.getClass());
+            System.out.println("Field: " + fieldName);
+            System.out.println("Type: " + pd.getPropertyType().getTypeName());
+            System.out.println("value Type: " + value.getClass());
+            String type = pd.getPropertyType().getTypeName();
+            if (type.equals("int")) {
+                try{
+                    int v = Integer.parseInt(value);
+                    pd.getWriteMethod().invoke(obj, v);
+                }catch(Exception e){
+                    throw e;
+                    //r.addError(fieldName + " should be an integer");
+                }
+            } else {
+                pd.getWriteMethod().invoke(obj, value);
+            }
         }
     }
 
