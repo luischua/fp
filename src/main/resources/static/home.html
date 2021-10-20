@@ -9,30 +9,16 @@
 <body>
     <div id="app">
         <b-card no-body>
-            <b-tabs pills card vertical lazy>
+            <b-tabs pills card vertical>
                 <b-tab title="Customer" active>
-                    <b-button @click="newForm">New</b-button>
-                    <b-button @click="refresh">Refresh Table</b-button>
-                    <b-alert
-                            :show="dismissCountDown"
-                            dismissible
-                            fade
-                            variant="success"
-                            @dismiss-count-down="countDownChanged"
-                        >
+                    <b-button @click="newFormGeneric(customerForm, defaultCustomerForm, 'bv-modal-customer')">New</b-button>
+                    <b-button @click="refresh('customerTable')">Refresh Table</b-button>
+                    <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
                         Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
                     </b-alert>
                     <b-modal ref="bv-modal-customer" hide-footer>
-                        <b-alert
-                                variant="danger"
-                                :show="showErrorAlert"
-                        >
-                            <div>{{ errorMessage }}</div>
-                        </b-alert>
-                        <b-alert
-                                variant="danger"
-                                :show="showErrorDetail"
-                        >
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
                             <div>System Error</div>
                             <b-button :pressed.sync="showStackTrace" variant="primary">
                                 {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
@@ -43,7 +29,7 @@
                         </b-alert>
                         <b-form @submit="onSubmit">
                             <b-form-group label="Name:">
-                                <b-form-input v-model="customerForm.name" placeholder="Enter name"/>
+                                <b-form-input v-model="customerForm.name"/>
                             </b-form-group>
                             <b-form-group label="Address:">
                                 <b-form-input v-model="customerForm.address"/>
@@ -125,13 +111,16 @@
                 errorMessage: '',
                 showErrorDetail: false,
                 errorDetailMessage: '',
-                defaultForm: {
+                selectedItem:{
+                },
+                allItems: [
+                ],
+                defaultCustomerForm: {
                   name: '',
                   address: '',
                   telephone: '',
                   contact: '',
-                  terms: '',
-                  table: 'Customer'
+                  terms: '60',
                 },
                 customerForm: {
                   name: '',
@@ -141,14 +130,10 @@
                   terms: '',
                   table: 'Customer'
                 },
-                selectedItem:{
-                },
-                allItems: [
-                ],
                 customerFields: [
                   {
                     key: 'edit',
-                    label: ''
+                    label: 'Action'
                   },
                   {
                     key: 'name',
@@ -177,9 +162,12 @@
                 showSuccessMessage() {
                     this.dismissCountDown = this.dismissSecs
                   },
-                newForm: function (item) {
-                    Object.assign(this.customerForm, this.defaultForm)
-                    this.$refs['bv-modal-customer'].show()
+                refresh: function(refId) {
+                    this.$refs[refId].refresh();
+                },
+                newFormGeneric(form, defaultValues, refId) {
+                    Object.assign(form, defaultValues)
+                    this.$refs[refId].show()
                 },
                 edit: function (item) {
                     this.selectedItem = item
@@ -240,7 +228,7 @@
                                 if(!id || id.length == 0){
                                     console.log('push to table')
                                     //this.$refs.customerTable.items.push(response.data.result)
-                                    this.refresh()
+                                    this.refresh('customerTable')
                                 }else{
                                     console.log('write to vue table')
                                     Object.assign(this.selectedItem, response.data.result)
@@ -266,9 +254,6 @@
                             this.showStackTrace = false
                             this.errorMessage = 'Connection Error'
                       });
-                },
-                refresh: function() {
-                    this.$refs.customerTable.refresh();
                 }
             }
          });

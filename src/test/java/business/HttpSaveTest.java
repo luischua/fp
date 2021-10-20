@@ -14,7 +14,7 @@ public class HttpSaveTest {
     @Test
     public void testSaveOnBusinessController() {
         //create
-        Map<String, Object> request = new HashMap<String, Object>();
+        Map<String, String> request = new HashMap<String, String>();
         request.put(BusinessController.TABLE_KEY, "Customer");
         request.put("name", "Luis");
         request.put("address", "QC");
@@ -27,7 +27,7 @@ public class HttpSaveTest {
         Assertions.assertNotNull(d);
 
         //modify
-        Map<String, Object> modifyRequest = new HashMap<String, Object>();
+        Map<String, String> modifyRequest = new HashMap<String, String>();
         modifyRequest.put(BusinessController.TABLE_KEY, "Customer");
         modifyRequest.put("name", "Luis Edited");
         modifyRequest.put("id", d.getId());
