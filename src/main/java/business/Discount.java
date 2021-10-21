@@ -1,22 +1,12 @@
 package business;
 
-import lombok.Data;
-
 import java.math.BigDecimal;
 
-@Data
 public class Discount {
-    private String name = "NET";
-    private BigDecimal value = new BigDecimal(1);
 
-    public void setName(String name){
-        this.name = name;
-        calculateDiscount();
-    }
-
-    private void calculateDiscount(){
+    public static BigDecimal calculateDiscount(String name){
+        BigDecimal value = new BigDecimal(1);
         if(!name.equals("NET")){
-            value = new BigDecimal(1);
             String[] splitString = name.split("-");
             for(String s : splitString) {
                 int percent = Integer.parseInt(s.replace("%", ""));
@@ -26,5 +16,6 @@ public class Discount {
                 value = value.multiply(percentInValue);
             }
         }
+        return value;
     }
 }

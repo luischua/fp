@@ -11,7 +11,7 @@
         <b-card no-body>
             <b-tabs pills card vertical>
                 <b-tab title="Customer" active>
-                    <b-button @click="newFormGeneric(customerForm, defaultCustomerForm, 'bv-modal-customer')">New</b-button>
+                    <b-button @click="newFormGeneric(customerForm, defaultCustomerValues, 'bv-modal-customer')">New</b-button>
                     <b-button @click="refresh('customerTable')">Refresh Table</b-button>
                     <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
                         Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
@@ -27,7 +27,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit">
+                        <b-form @submit="onSubmit($event, customerForm, 'bv-modal-customer')">
                             <b-form-group label="Name:">
                                 <b-form-input v-model="customerForm.name"/>
                             </b-form-group>
@@ -59,12 +59,12 @@
                         </template>
                         <template #cell(edit)="row">
                             <b>{{ row.index + 1 }}</b>
-                            <b-button size="sm" @click="edit(row.item)" class="mr-1">
+                            <b-button size="sm" @click="edit(row.item, customerForm, 'bv-modal-customer')" class="mr-1">
                                 Edit
                             </b-button>
                         </template>
                         <template #cell(name)="data">
-                            {{ data.value.toUpperCase() }}
+                            {{ data.value }}
                         </template>
                         <template #cell(address)="data">
                             {{ data.value }}
@@ -81,7 +81,64 @@
                     </b-table>
                 </b-tab>
                 <b-tab title="Order"><b-card-text>Tab contents 2</b-card-text></b-tab>
-                <b-tab title="Product"><b-card-text>Tab contents 3</b-card-text></b-tab>
+                <b-tab title="Product">
+                    <b-button @click="newFormGeneric(productForm, defaultProductValues, 'bv-modal-product')">New</b-button>
+                    <b-button @click="refresh('productTable')">Refresh Table</b-button>
+                    <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
+                        Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
+                    </b-alert>
+                    <b-modal ref="bv-modal-product" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, productForm, 'bv-modal-product')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="productForm.name"/>
+                            </b-form-group>
+                            <b-form-group label="Price:">
+                                <b-form-input v-model="productForm.price"/>
+                            </b-form-group>
+                            <b-form-group label="Default Discount:">
+                                <b-form-input v-model="productForm.defaultDiscount"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                            <b-form-input v-model="productForm.table" value="Customer" style="display:none;"/>
+                            <b-form-input v-model="productForm.id" style="display:none;"/>
+                            <b-form-input v-model="productForm.revision" style="display:none;"/>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="productTable" bordered striped hover sticky-header :items="productList" :fields="productFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, productForm, 'bv-modal-product')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(price)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(defaultDiscount)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
                 <b-tab title="Tab 4"><b-card-text>Tab contents 4</b-card-text></b-tab>
                 <b-tab title="Tab 6"><b-card-text>Tab contents 6</b-card-text></b-tab>
             </b-tabs>
@@ -115,7 +172,7 @@
                 },
                 allItems: [
                 ],
-                defaultCustomerForm: {
+                defaultCustomerValues: {
                   name: '',
                   address: '',
                   telephone: '',
@@ -128,7 +185,22 @@
                   telephone: '',
                   contact: '',
                   terms: '',
-                  table: 'Customer'
+                  table: 'Customer',
+                  id: '',
+                  revision: ''
+                },
+                defaultProductValues: {
+                  name: '',
+                  price: '',
+                  defaultDiscount: 'NET',
+                },
+                productForm: {
+                  name: '',
+                  price: '',
+                  defaultDiscount: '',
+                  table: 'Product',
+                  id: '',
+                  revision: ''
                 },
                 customerFields: [
                   {
@@ -153,6 +225,22 @@
                   {
                     key: 'terms'
                   }
+                ],
+                productFields: [
+                  {
+                    key: 'edit',
+                    label: 'Action'
+                  },
+                  {
+                    key: 'name',
+                    sortable: true
+                  },
+                  {
+                    key: 'price'
+                  },
+                  {
+                    key: 'defaultDiscount'
+                  }
                 ]
             },
             methods: {
@@ -165,22 +253,34 @@
                 refresh: function(refId) {
                     this.$refs[refId].refresh();
                 },
+                resetError(){
+                    this.showErrorAlert = false
+                    this.showErrorDetail = false
+                    this.showStackTrace = false
+                },
                 newFormGeneric(form, defaultValues, refId) {
                     Object.assign(form, defaultValues)
+                    form.id = ''
+                    form.revision = ''
+                    console.log("REF_ID:"+refId)
+                    this.resetError()
                     this.$refs[refId].show()
                 },
-                edit: function (item) {
+                edit: function (item, editForm, refId) {
                     this.selectedItem = item
-                    const {attachments,narrative,...copyForm} = item
-                    console.log(copyForm)
-                    Object.assign(this.customerForm, copyForm)
-                    console.log(this.customerForm)
-                    this.$refs['bv-modal-customer'].show()
+                    Object.keys(editForm).forEach((key) => {
+                        if(key != 'table'){
+                            editForm[key] = item[key]
+                        }
+                    })
+                    console.log(editForm)
+                    this.resetError()
+                    this.$refs[refId].show()
                 },
-                customerList: function (ctx, callback) {
+                getData(ctx, callback, type) {
                     this.isBusy = true
                     console.log("Loading...")
-                    axios.get('/list?table=Customer')
+                    axios.get('/list?table='+type)
                     .then((response)=>{
                         this.isBusy = false
                         console.log(response)
@@ -193,14 +293,20 @@
                         callback([])
                     })
                 },
-                onSubmit: function(event) {
+                customerList(ctx, callback) {
+                    this.getData(ctx, callback, 'Customer')
+                },
+                productList(ctx, callback) {
+                    this.getData(ctx, callback, 'Product')
+                },
+                onSubmit: function(event, submitForm, refId) {
                     event.preventDefault()
                     console.log('Submit')
-                    console.log(this.customerForm)
-                    var id = this.customerForm.id
+                    console.log(submitForm)
+                    var id = submitForm.id
                     axios.post(
                         "/saveToDb",
-                        this.customerForm
+                        submitForm
                       )
                       .then(response => {
                         console.log(response)
@@ -209,9 +315,8 @@
                         var error = response.data.error
                         if(error.length > 0){
                             console.log('show error message')
+                            this.resetError()
                             this.showErrorAlert = true
-                            this.showErrorDetail = false
-                            this.showStackTrace = false
                             this.errorMessage = error.toString()
                             if(response.data.revisionError){
                                 console.log('revision Error')
@@ -223,35 +328,30 @@
                         {
                             var stackTrace = response.data.stackTrace
                             if(!stackTrace || stackTrace.length == 0){
-                                this.$refs['bv-modal-customer'].hide()
+                                this.$refs[refId].hide()
                                 console.log("ID:"+id)
                                 if(!id || id.length == 0){
                                     console.log('push to table')
                                     //this.$refs.customerTable.items.push(response.data.result)
-                                    this.refresh('customerTable')
+                                    //this.refresh('customerTable')
                                 }else{
                                     console.log('write to vue table')
                                     Object.assign(this.selectedItem, response.data.result)
                                 }
                                 this.showSuccessMessage()
-                                this.showErrorAlert = false
-                                this.showErrorDetail = false
-                                this.showStackTrace = false
                              }
                              else{
                                 console.log('show stacktrace')
-                                this.showErrorAlert = false
+                                this.resetError()
                                 this.showErrorDetail = true
-                                this.showStackTrace = false
                                 this.errorDetailMessage = stackTrace
                              }
                          }
                       })
                       .catch(error => {
                             console.log(error);
+                            this.resetError()
                             this.showErrorAlert = true
-                            this.showErrorDetail = false
-                            this.showStackTrace = false
                             this.errorMessage = 'Connection Error'
                       });
                 }

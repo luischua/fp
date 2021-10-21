@@ -10,8 +10,8 @@ public class ProductRecord{
     private String name;
     private BigDecimal price;
     private int quantity;
-    private Discount discount;
+    private String discount;
     public BigDecimal getTotal(){
-        return this.getPrice().multiply(new BigDecimal(quantity)).multiply(discount.getValue()).setScale(2, RoundingMode.UP);
+        return this.getPrice().multiply(new BigDecimal(quantity)).multiply(Discount.calculateDiscount(discount)).setScale(2, RoundingMode.UP);
     }
 }

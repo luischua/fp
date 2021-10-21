@@ -1,27 +1,32 @@
 package business;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.lightcouch.Document;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
-@Setter
-public class Product extends Document {
+@Data
+@EqualsAndHashCode(callSuper=false)
+@ToString(callSuper=true)
+public class Product extends CouchDocument {
     private String name;
     private BigDecimal price;
-    private Discount defaultDiscount = new Discount();
-    private Map<String, Discount> customerDiscount = new HashMap<String, Discount>();
+    private String defaultDiscount;
+    private Map<String, String> customerDiscount = new HashMap<String, String>();
 
-    public void addCustomerDiscount(Customer cust, Discount d){
+    public Product(){
+        customerDiscount.put("test", "ssss");
+    }
+
+    public void addCustomerDiscount(Customer cust, String d){
         customerDiscount.put(cust.getName(), d);
     }
 
-    public Discount getDiscount(Customer cust){
-        Discount d = customerDiscount.get(cust.getName());
+    public String getDiscount(Customer cust){
+        String d = customerDiscount.get(cust.getName());
         if(d == null){
             return defaultDiscount;
         }

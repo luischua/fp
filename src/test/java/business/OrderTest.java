@@ -14,8 +14,6 @@ public class OrderTest {
 
     @Test
     public void testDiscount() {
-        Discount d = new Discount();
-        d.setName("5%-5%-5%");
-        Assertions.assertEquals(d.getValue(), new BigDecimal("0.857375"));
+        Assertions.assertEquals(Discount.calculateDiscount("5%-5%-5%"), new BigDecimal("0.857375"));
     }
 }

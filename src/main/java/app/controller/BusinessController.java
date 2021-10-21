@@ -17,6 +17,7 @@ import util.CouchDBUtil;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.beans.PropertyDescriptor;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class BusinessController {
             CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
             CouchDocument d = null;
             String id = request.get(ID_KEY);
-            if(id == null) {
+            if(StringUtil.isBlank(id)) {
                 d = (CouchDocument) clz.getDeclaredConstructor().newInstance();
                 d.addNarrative("Created;");
             }else{
@@ -86,7 +87,7 @@ public class BusinessController {
             }
             System.out.println("Save to DB: " + d);
             Response response;
-            if(id == null){
+            if(StringUtil.isBlank(id)){
                 response = dbClient.save(d);
             }else{
                 response = dbClient.update(d);
@@ -109,15 +110,22 @@ public class BusinessController {
             System.out.println("Type: " + pd.getPropertyType().getTypeName());
             System.out.println("value Type: " + value.getClass());
             String type = pd.getPropertyType().getTypeName();
-            if (type.equals("int")) {
+            if ("int".equals(type)) {
                 try{
                     int v = Integer.parseInt(value);
                     pd.getWriteMethod().invoke(obj, v);
                 }catch(Exception e){
-                    throw e;
-                    //r.addError(fieldName + " should be an integer");
+                    r.addError(fieldName + " should be an integer");
                 }
-            } else {
+            } else if ("java.math.BigDecimal".equals(type)){
+                try{
+                    BigDecimal v = new BigDecimal(value);
+                    pd.getWriteMethod().invoke(obj, v);
+                }catch(Exception e){
+                    r.addError(fieldName + " should be a number");
+                }
+            }
+            else {
                 pd.getWriteMethod().invoke(obj, value);
             }
         }
