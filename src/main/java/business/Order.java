@@ -1,20 +1,22 @@
 package business;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.lightcouch.Document;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.lightcouch.CouchDbClient;
+import util.CouchDBUtil;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-@Getter
-@Setter
-public class Order extends Document {
+@Data
+@EqualsAndHashCode(callSuper=false)
+@ToString(callSuper=true)
+public class Order extends CouchDocument {
     private Customer customer;
     private long receiptNo;
-    private LocalDateTime createTime;
+    private LocalDate orderDate;
     List<ProductRecord> products;
     List<ProductRecord> promo;
 
@@ -49,5 +51,23 @@ public class Order extends Document {
             total = total.add(record.getTotal());
         }
         return total;
+    }
+
+    public void beforeNew(){
+        try {
+            String tableClass = "business.Counter";
+            Class clz = Class.forName(tableClass);
+            CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
+            List<Counter> list = dbClient.findDocs(
+                    "{\"selector\": {\"name\": {\"$eq\": \"Order\"}}}", clz);
+            Counter c = list.get(0);
+            receiptNo = c.getValue();
+            c.reserve(1);
+            dbClient.update(c);
+            if(orderDate == null){
+                orderDate = LocalDate.now();
+            }
+        }catch (Exception e){
+        }
     }
 }

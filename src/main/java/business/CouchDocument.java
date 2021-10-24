@@ -18,4 +18,8 @@ public class CouchDocument extends Document {
     public String toString() {
         return "CouchDocument(id="+getId()+", revision="+getRevision()+", narrative="+narrative+")";
     }
+
+    public void beforeNew(){
+
+    }
 }

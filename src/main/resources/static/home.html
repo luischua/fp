@@ -8,14 +8,14 @@
 </head>
 <body>
     <div id="app">
+        <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
+            Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
+        </b-alert>
         <b-card no-body>
             <b-tabs pills card vertical>
                 <b-tab title="Customer" active>
                     <b-button @click="newFormGeneric(customerForm, defaultCustomerValues, 'bv-modal-customer')">New</b-button>
                     <b-button @click="refresh('customerTable')">Refresh Table</b-button>
-                    <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
-                        Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
-                    </b-alert>
                     <b-modal ref="bv-modal-customer" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
                         <b-alert variant="danger" :show="showErrorDetail">
@@ -80,13 +80,111 @@
                         </template>
                     </b-table>
                 </b-tab>
-                <b-tab title="Order"><b-card-text>Tab contents 2</b-card-text></b-tab>
+                <b-tab title="Order">
+                    <b-button @click="newFormGeneric(orderForm, defaultOrderValues, 'bv-modal-order')">New</b-button>
+                    <b-button @click="refresh('orderTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-order" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, orderForm, 'bv-modal-order')">
+                            <b-form-group label="Customer:">
+                                <b-form-input v-model="orderForm.customerId" list="customerDataList"></b-form-input>
+                                <datalist id="customerDataList">
+                                    <option>Manual Option #1</option>
+                                    <option>Manual Option #2</option>
+                                </datalist>
+                            </b-form-group>
+                            <b-form-group label="Order Date:">
+                                <b-calendar v-model="orderForm.orderDate" @context="onContext" locale="en-US"></b-calendar>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                            <b-form-input v-model="orderForm.table" value="Customer" style="display:none;"/>
+                            <b-form-input v-model="orderForm.id" style="display:none;"/>
+                            <b-form-input v-model="orderForm.revision" style="display:none;"/>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="orderTable" bordered striped hover sticky-header :items="orderList" :fields="orderFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, orderForm, 'bv-modal-order')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(customerId)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(orderDate)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
+                <b-tab title="Counter">
+                    <b-button @click="newFormGeneric(counterForm, defaultCounterValues, 'bv-modal-counter')">New</b-button>
+                    <b-button @click="refresh('counterTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-counter" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, counterForm, 'bv-modal-counter')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="counterForm.name"/>
+                            </b-form-group>
+                            <b-form-group label="Current Value:">
+                                <b-form-input v-model="counterForm.value"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                            <b-form-input v-model="counterForm.table" value="Customer" style="display:none;"/>
+                            <b-form-input v-model="counterForm.id" style="display:none;"/>
+                            <b-form-input v-model="counterForm.revision" style="display:none;"/>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="counterTable" bordered striped hover sticky-header :items="counterList" :fields="counterFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, counterForm, 'bv-modal-counter')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(value)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
                 <b-tab title="Product">
                     <b-button @click="newFormGeneric(productForm, defaultProductValues, 'bv-modal-product')">New</b-button>
                     <b-button @click="refresh('productTable')">Refresh Table</b-button>
-                    <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
-                        Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
-                    </b-alert>
                     <b-modal ref="bv-modal-product" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
                         <b-alert variant="danger" :show="showErrorDetail">
@@ -139,8 +237,9 @@
                         </template>
                     </b-table>
                 </b-tab>
-                <b-tab title="Tab 4"><b-card-text>Tab contents 4</b-card-text></b-tab>
-                <b-tab title="Tab 6"><b-card-text>Tab contents 6</b-card-text></b-tab>
+                <b-tab title="Payment"><b-card-text>Tab contents 4</b-card-text></b-tab>
+                <b-tab title="Agent"><b-card-text>Tab contents 6</b-card-text></b-tab>
+                <b-tab title="Category"><b-card-text>Tab contents 6</b-card-text></b-tab>
             </b-tabs>
         </b-card>
     </div>
@@ -151,212 +250,260 @@
 
     <!-- axios -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
     <script>
-        var app = new Vue({
-            el: '#app',
-            data: {
-                isBusy: false,
-                transProps: {
-                  // Transition name
-                  name: 'flip-list'
-                },
-                dismissSecs: 5,
-                dismissCountDown: 0,
-                showErrorAlert: false,
-                showStackTrace: false,
-                errorMessage: '',
-                showErrorDetail: false,
-                errorDetailMessage: '',
-                selectedItem:{
-                },
-                allItems: [
-                ],
-                defaultCustomerValues: {
-                  name: '',
-                  address: '',
-                  telephone: '',
-                  contact: '',
-                  terms: '60',
-                },
-                customerForm: {
-                  name: '',
-                  address: '',
-                  telephone: '',
-                  contact: '',
-                  terms: '',
-                  table: 'Customer',
-                  id: '',
-                  revision: ''
-                },
-                defaultProductValues: {
-                  name: '',
-                  price: '',
-                  defaultDiscount: 'NET',
-                },
-                productForm: {
-                  name: '',
-                  price: '',
-                  defaultDiscount: '',
-                  table: 'Product',
-                  id: '',
-                  revision: ''
-                },
-                customerFields: [
-                  {
-                    key: 'edit',
-                    label: 'Action'
-                  },
-                  {
-                    key: 'name',
-                    sortable: true
-                  },
-                  {
-                    key: 'address'
-                  },
-                  {
-                    key: 'contact',
-                    label: 'Contact Person'
-                  },
-                  {
-                    key: 'telephone',
-                    label: 'Tel Number'
-                  },
-                  {
-                    key: 'terms'
-                  }
-                ],
-                productFields: [
-                  {
-                    key: 'edit',
-                    label: 'Action'
-                  },
-                  {
-                    key: 'name',
-                    sortable: true
-                  },
-                  {
-                    key: 'price'
-                  },
-                  {
-                    key: 'defaultDiscount'
-                  }
-                ]
-            },
-            methods: {
-                countDownChanged(dismissCountDown) {
-                    this.dismissCountDown = dismissCountDown
-                  },
-                showSuccessMessage() {
-                    this.dismissCountDown = this.dismissSecs
-                  },
-                refresh: function(refId) {
-                    this.$refs[refId].refresh();
-                },
-                resetError(){
-                    this.showErrorAlert = false
-                    this.showErrorDetail = false
-                    this.showStackTrace = false
-                },
-                newFormGeneric(form, defaultValues, refId) {
-                    Object.assign(form, defaultValues)
-                    form.id = ''
-                    form.revision = ''
-                    console.log("REF_ID:"+refId)
-                    this.resetError()
-                    this.$refs[refId].show()
-                },
-                edit: function (item, editForm, refId) {
-                    this.selectedItem = item
-                    Object.keys(editForm).forEach((key) => {
-                        if(key != 'table'){
-                            editForm[key] = item[key]
-                        }
-                    })
-                    console.log(editForm)
-                    this.resetError()
-                    this.$refs[refId].show()
-                },
-                getData(ctx, callback, type) {
-                    this.isBusy = true
-                    console.log("Loading...")
-                    axios.get('/list?table='+type)
-                    .then((response)=>{
-                        this.isBusy = false
-                        console.log(response)
-                        this.allItems = response.data
-                        callback(response.data)
-                    })
-                    .catch((error)=>{
-                        this.isBusy = false
-                        console.log(error)
-                        callback([])
-                    })
-                },
-                customerList(ctx, callback) {
-                    this.getData(ctx, callback, 'Customer')
-                },
-                productList(ctx, callback) {
-                    this.getData(ctx, callback, 'Product')
-                },
-                onSubmit: function(event, submitForm, refId) {
-                    event.preventDefault()
-                    console.log('Submit')
-                    console.log(submitForm)
-                    var id = submitForm.id
-                    axios.post(
-                        "/saveToDb",
-                        submitForm
-                      )
-                      .then(response => {
-                        console.log(response)
-                        console.log(response.data.error)
-                        console.log(response.data.stackTrace)
-                        var error = response.data.error
-                        if(error.length > 0){
-                            console.log('show error message')
-                            this.resetError()
-                            this.showErrorAlert = true
-                            this.errorMessage = error.toString()
-                            if(response.data.revisionError){
-                                console.log('revision Error')
-                                const {attachments,narrative,...copyForm} = response.data.result
-                                Object.assign(this.customerForm, copyForm)
-                            }
-                        }
-                        else
-                        {
-                            var stackTrace = response.data.stackTrace
-                            if(!stackTrace || stackTrace.length == 0){
-                                this.$refs[refId].hide()
-                                console.log("ID:"+id)
-                                if(!id || id.length == 0){
-                                    console.log('push to table')
-                                    //this.$refs.customerTable.items.push(response.data.result)
-                                    //this.refresh('customerTable')
-                                }else{
-                                    console.log('write to vue table')
-                                    Object.assign(this.selectedItem, response.data.result)
-                                }
-                                this.showSuccessMessage()
-                             }
-                             else{
-                                console.log('show stacktrace')
-                                this.resetError()
-                                this.showErrorDetail = true
-                                this.errorDetailMessage = stackTrace
-                             }
-                         }
-                      })
-                      .catch(error => {
-                            console.log(error);
-                            this.resetError()
-                            this.showErrorAlert = true
-                            this.errorMessage = 'Connection Error'
-                      });
-                }
+    var app = new Vue({
+      el: '#app',
+      data: {
+        isBusy: false,
+        transProps: {
+          // Transition name
+          name: 'flip-list'
+        },
+        dismissSecs: 5,
+        dismissCountDown: 0,
+        showErrorAlert: false,
+        showStackTrace: false,
+        errorMessage: '',
+        showErrorDetail: false,
+        errorDetailMessage: '',
+        selectedItem: {},
+        allItems: [],
+        defaultCustomerValues: {
+          name: '',
+          address: '',
+          telephone: '',
+          contact: '',
+          terms: '60',
+        },
+        customerForm: {
+          name: '',
+          address: '',
+          telephone: '',
+          contact: '',
+          terms: '',
+          table: 'Customer',
+          id: '',
+          revision: ''
+        },
+        defaultProductValues: {
+          name: '',
+          price: '',
+          defaultDiscount: 'NET',
+        },
+        productForm: {
+          name: '',
+          price: '',
+          defaultDiscount: '',
+          table: 'Product',
+          id: '',
+          revision: ''
+        },
+        defaultCounterValues: {
+          name: '',
+          value: ''
+        },
+        counterForm: {
+          name: '',
+          value: '',
+          table: 'Counter',
+          id: '',
+          revision: ''
+        },
+        defaultOrderValues: {
+          customerId: '',
+          orderDate: ''
+        },
+        orderForm: {
+          customerId: '',
+          orderDate: '',
+          table: 'Order',
+          id: '',
+          revision: ''
+        },
+        customerFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'name',
+            sortable: true
+          },
+          {
+            key: 'address'
+          },
+          {
+            key: 'contact',
+            label: 'Contact Person'
+          },
+          {
+            key: 'telephone',
+            label: 'Tel Number'
+          },
+          {
+            key: 'terms'
+          }
+        ],
+        productFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'name',
+            sortable: true
+          },
+          {
+            key: 'price'
+          },
+          {
+            key: 'defaultDiscount'
+          }
+        ],
+        counterFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'name',
+            sortable: true
+          },
+          {
+            key: 'value'
+          }
+        ],
+        orderFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'customerId',
+            sortable: true
+          },
+          {
+            key: 'orderDate'
+          }
+        ]
+      },
+      methods: {
+        countDownChanged(dismissCountDown) {
+          this.dismissCountDown = dismissCountDown;
+        },
+        showSuccessMessage() {
+          this.dismissCountDown = this.dismissSecs;
+        },
+        refresh: function(refId) {
+          this.$refs[refId].refresh();
+        },
+        resetError() {
+          this.showErrorAlert = false;
+          this.showErrorDetail = false;
+          this.showStackTrace = false;
+        },
+        newFormGeneric(form, defaultValues, refId) {
+          Object.assign(form, defaultValues);
+          form.id = '';
+          form.revision = '';
+          console.log("REF_ID:" + refId);
+          this.resetError();
+          this.$refs[refId].show();
+        },
+        edit: function(item, editForm, refId) {
+          this.selectedItem = item;
+          Object.keys(editForm).forEach((key) => {
+            if (key != 'table') {
+              editForm[key] = item[key];
             }
-         });
+          });
+          console.log(editForm);
+          this.resetError();
+          this.$refs[refId].show();
+        },
+        getData(ctx, callback, type) {
+          this.isBusy = true;
+          console.log("Loading...");
+          axios.get('/list?table=' + type)
+            .then((response) => {
+              this.isBusy = false;
+              console.log(response);
+              this.allItems = response.data;
+              callback(response.data);
+            })
+            .catch((error) => {
+              this.isBusy = false;
+              console.log(error);
+              callback([]);
+            });
+        },
+        customerList(ctx, callback) {
+          this.getData(ctx, callback, 'Customer');
+        },
+        productList(ctx, callback) {
+          this.getData(ctx, callback, 'Product');
+        },
+        counterList(ctx, callback) {
+          this.getData(ctx, callback, 'Counter');
+        },
+        orderList(ctx, callback) {
+          this.getData(ctx, callback, 'Order');
+        },
+        onSubmit: function(event, submitForm, refId) {
+          event.preventDefault();
+          console.log('Submit');
+          console.log(submitForm);
+          var id = submitForm.id;
+          axios.post(
+              "/saveToDb",
+              submitForm
+            )
+            .then(response => {
+              console.log(response);
+              console.log(response.data.error);
+              console.log(response.data.stackTrace);
+              var error = response.data.error;
+              if (error.length > 0) {
+                console.log('show error message');
+                this.resetError();
+                this.showErrorAlert = true;
+                this.errorMessage = error.toString();
+                if (response.data.revisionError) {
+                  console.log('revision Error');
+                  const {
+                    attachments,
+                    narrative,
+                    ...copyForm
+                  } = response.data.result;
+                  Object.assign(this.customerForm, copyForm);
+                }
+              } else {
+                var stackTrace = response.data.stackTrace;
+                if (!stackTrace || stackTrace.length == 0) {
+                  this.$refs[refId].hide();
+                  console.log("ID:" + id);
+                  if (!id || id.length == 0) {
+                    console.log('push to table');
+                    //this.$refs.customerTable.items.push(response.data.result);
+                    //this.refresh('customerTable');
+                  } else {
+                    console.log('write to vue table');
+                    Object.assign(this.selectedItem, response.data.result);
+                  }
+                  this.showSuccessMessage();
+                } else {
+                  console.log('show stacktrace');
+                  this.resetError();
+                  this.showErrorDetail = true;
+                  this.errorDetailMessage = stackTrace;
+                }
+              }
+            })
+            .catch(error => {
+              console.log(error);
+              this.resetError();
+              this.showErrorAlert = true;
+              this.errorMessage = 'Connection Error';
+            });
+        }
+      }
+    });
     </script>
 </body>
 </html>

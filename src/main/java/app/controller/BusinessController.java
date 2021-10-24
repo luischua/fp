@@ -57,7 +57,6 @@ public class BusinessController {
                 r.addError( "table parameter missing");
                 return r;
             }
-            String tableProperties = table.concat(".properties");
             String tableClass = "business.".concat(table);
             Class clz = Class.forName(tableClass);
             CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
@@ -88,6 +87,7 @@ public class BusinessController {
             System.out.println("Save to DB: " + d);
             Response response;
             if(StringUtil.isBlank(id)){
+                d.beforeNew();
                 response = dbClient.save(d);
             }else{
                 response = dbClient.update(d);
@@ -110,13 +110,8 @@ public class BusinessController {
             System.out.println("Type: " + pd.getPropertyType().getTypeName());
             System.out.println("value Type: " + value.getClass());
             String type = pd.getPropertyType().getTypeName();
-            if ("int".equals(type)) {
-                try{
-                    int v = Integer.parseInt(value);
-                    pd.getWriteMethod().invoke(obj, v);
-                }catch(Exception e){
-                    r.addError(fieldName + " should be an integer");
-                }
+            if ("java.lang.String".equals(type)){
+                pd.getWriteMethod().invoke(obj, value);
             } else if ("java.math.BigDecimal".equals(type)){
                 try{
                     BigDecimal v = new BigDecimal(value);
@@ -124,10 +119,24 @@ public class BusinessController {
                 }catch(Exception e){
                     r.addError(fieldName + " should be a number");
                 }
+            } else if ("int".equals(type)) {
+                try{
+                    int v = Integer.parseInt(value);
+                    pd.getWriteMethod().invoke(obj, v);
+                }catch(Exception e){
+                    r.addError(fieldName + " should be a number");
+                }
+            } else if ("long".equals(type)) {
+                try{
+                    long v = Long.parseLong(value);
+                    pd.getWriteMethod().invoke(obj, v);
+                }catch(Exception e){
+                    r.addError(fieldName + " should be a number");
+                }
+            } else {
+                System.out.println("Ignoring " + fieldName);
             }
-            else {
-                pd.getWriteMethod().invoke(obj, value);
-            }
+
         }
     }
 
