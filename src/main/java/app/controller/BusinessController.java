@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,7 @@ public class BusinessController {
             }
             System.out.println("Save to DB: " + d);
             Response response;
+            d.beforeSave();
             if(StringUtil.isBlank(id)){
                 d.beforeNew();
                 response = dbClient.save(d);
@@ -118,6 +120,13 @@ public class BusinessController {
                     pd.getWriteMethod().invoke(obj, v);
                 }catch(Exception e){
                     r.addError(fieldName + " should be a number");
+                }
+            } else if ("java.time.LocalDate".equals(type)){
+                try{
+                    LocalDate v = LocalDate.parse(value);
+                    pd.getWriteMethod().invoke(obj, v);
+                }catch(Exception e){
+                    r.addError(fieldName + " should be a date");
                 }
             } else if ("int".equals(type)) {
                 try{

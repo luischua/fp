@@ -15,6 +15,8 @@ import java.util.List;
 @ToString(callSuper=true)
 public class Order extends CouchDocument {
     private Customer customer;
+    private String customerId;
+    private String customerName;
     private long receiptNo;
     private LocalDate orderDate;
     List<ProductRecord> products;
@@ -46,28 +48,38 @@ public class Order extends CouchDocument {
 
     public BigDecimal getTotal(){
         BigDecimal total = new BigDecimal(0);
-        for(ProductRecord record: products){
-            //System.out.println(record);
-            total = total.add(record.getTotal());
+        if(products != null) {
+            for (ProductRecord record : products) {
+                //System.out.println(record);
+                total = total.add(record.getTotal());
+            }
         }
         return total;
     }
 
     public void beforeNew(){
         try {
-            String tableClass = "business.Counter";
-            Class clz = Class.forName(tableClass);
-            CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
+            CouchDbClient dbClient = CouchDBUtil.getDbClient(Counter.class);
             List<Counter> list = dbClient.findDocs(
-                    "{\"selector\": {\"name\": {\"$eq\": \"Order\"}}}", clz);
+                    "{\"selector\": {\"name\": {\"$eq\": \"Order\"}}}", Counter.class);
             Counter c = list.get(0);
-            receiptNo = c.getValue();
             c.reserve(1);
             dbClient.update(c);
+            receiptNo = c.getValue();
             if(orderDate == null){
                 orderDate = LocalDate.now();
             }
         }catch (Exception e){
+            throw new RuntimeException("Can't get sequence number");
+        }
+    }
+
+    public void beforeSave(){
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(Customer.class);
+        List<Customer> list = dbClient.findDocs(
+                "{\"selector\": {\"name\": {\"$eq\": \""+customerName+"\"}}}", Customer.class);
+        if(list.size() > 0) {
+            customerId = list.get(0).getId();
         }
     }
 }

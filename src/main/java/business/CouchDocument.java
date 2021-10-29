@@ -22,4 +22,8 @@ public class CouchDocument extends Document {
     public void beforeNew(){
 
     }
+
+    public void beforeSave(){
+
+    }
 }
