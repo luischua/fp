@@ -12,7 +12,12 @@
         <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
             <pre>{{ infoModal.content }}</pre>
         </b-modal>
-
+        <datalist id="customerSelect">
+            <option v-for="c in customerDataList">{{c.name}}</option>
+        </datalist>
+        <datalist id="productSelect">
+            <option v-for="c in productDataList">{{c.name}}</option>
+        </datalist>
         <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
             Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
         </b-alert>
@@ -102,15 +107,6 @@
                         <b-form @submit="onSubmit($event, orderForm, 'bv-modal-order')">
                             <b-form-group label="Customer:">
                                 <b-form-input v-model="orderForm.customerName" list="customerSelect"></b-form-input>
-                                <datalist id="customerSelect">
-                                    <option v-for="c in customerDataList">{{c.name}}</option>
-                                </datalist>
-                            </b-form-group>
-                            <b-form-group label="Product:">
-                                <b-form-input v-model="orderForm.customerId" list="productSelect"></b-form-input>
-                                <datalist id="productSelect">
-                                    <option v-for="c in productDataList">{{c.name}}</option>
-                                </datalist>
                             </b-form-group>
                             <b-form-group label="Order Date:">
                                 <b-calendar v-model="orderForm.orderDate" locale="en-US"></b-calendar>
@@ -135,7 +131,7 @@
                                 Info modal
                             </b-button>
                             <b-button size="sm" @click="row.toggleDetails">
-                                {{ row.detailsShowing ? 'Hide' : 'Show' }} Details
+                                {{ row.detailsShowing ? 'Hide' : 'Show' }} Order Details
                             </b-button>
                         </template>
                         <template #cell(receiptNo)="data">
@@ -147,11 +143,76 @@
                         <template #cell(orderDate)="data">
                             {{ data.value }}
                         </template>
+                        <template #cell(total)="data">
+                            {{ data.value }}
+                        </template>
                         <template #row-details="row">
                             <b-card>
-                                <ul>
-                                    <li v-for="(value, key) in row.item" :key="key">{{ key }}: {{ value }}</li>
-                                </ul>
+                                <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                                <b-alert variant="danger" :show="showErrorDetail">
+                                    <div>System Error</div>
+                                    <b-button :pressed.sync="showStackTrace" variant="primary">
+                                        {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                                    </b-button>
+                                    <b-card v-if="showStackTrace">
+                                        {{ errorDetailMessage }}
+                                    </b-card>
+                                </b-alert>
+                                <b-form @submit="onReletedSubmit($event, orderDetailForm, row.item)">
+                                    <b-form-group label="Product:">
+                                        <b-form-input v-model="orderDetailForm.productName" list="productSelect"></b-form-input>
+                                    </b-form-group>
+                                    <b-form-group label="Quantity:">
+                                        <b-form-input v-model="orderDetailForm.quantity"/>
+                                    </b-form-group>
+                                    <b-form-checkbox
+                                            id="checkbox-1"
+                                            v-model="orderDetailForm.isPromo"
+                                            name="checkbox-1"
+                                            value="true"
+                                            unchecked-value="false"
+                                    >Promo</b-form-checkbox>
+                                    <b-button type="submit" variant="primary">Add</b-button>
+                                </b-form>
+                                <b-table  ref="orderDetailProductTable" bordered striped hover sticky-header :items="row.item.products" :fields="orderDetailProductFields"
+                                          :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                                    <template #table-busy>
+                                        <div class="text-center text-danger my-2">
+                                            <b-spinner class="align-middle"></b-spinner>
+                                            <strong>Loading...</strong>
+                                        </div>
+                                    </template>
+                                    <template #cell(quantity)="data">
+                                        {{ data.value }}
+                                    </template>
+                                    <template #cell(name)="data">
+                                        {{ data.value }}
+                                    </template>
+                                    <template #cell(price)="data">
+                                        {{ data.value }}
+                                    </template>
+                                    <template #cell(defaultDiscount)="data">
+                                        {{ data.value }}
+                                    </template>
+                                    <template #cell(total)="data">
+                                        {{ data.value }}
+                                    </template>
+                                </b-table>
+                                <b-table  ref="orderDetailPromoTable" bordered striped hover sticky-header :items="row.item.promo" :fields="orderDetailPromoFields"
+                                          :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                                    <template #table-busy>
+                                        <div class="text-center text-danger my-2">
+                                            <b-spinner class="align-middle"></b-spinner>
+                                            <strong>Loading...</strong>
+                                        </div>
+                                    </template>
+                                    <template #cell(quantity)="data">
+                                        {{ data.value }}
+                                    </template>
+                                    <template #cell(name)="data">
+                                        {{ data.value }}
+                                    </template>
+                                </b-table>
                             </b-card>
                         </template>
                     </b-table>
@@ -343,6 +404,20 @@
           id: '',
           revision: ''
         },
+        defaultOrderDetailValues: {
+          productName: '',
+          quantity: '',
+          isPromo: 'false'
+        },
+        orderDetailForm: {
+          productName: '',
+          quantity: '',
+          isPromo: '',
+          table: 'Order',
+          method: 'addProductRecord',
+          id: '',
+          revision: ''
+        },
         customerFields: [{
             key: 'edit',
             label: 'Action'
@@ -406,6 +481,36 @@
           },
           {
             key: 'orderDate'
+          },
+          {
+            key: 'total'
+          }
+        ],
+        orderDetailProductFields: [
+          {
+            key: 'quantity',
+          },
+          {
+            key: 'name',
+            sortable: true
+          },
+          {
+            key: 'price'
+          },
+          {
+            key: 'discount'
+          },
+          {
+            key: 'total'
+          }
+        ],
+        orderDetailPromoFields: [
+          {
+            key: 'quantity',
+          },
+          {
+            key: 'name',
+            sortable: true
           }
         ]
       },
@@ -501,6 +606,13 @@
             this.infoModal.title = ''
             this.infoModal.content = ''
         },
+        onReletedSubmit(event, submitForm, item) {
+          event.preventDefault();
+          this.selectedItem = item;
+          submitForm.id = item.id;
+          submitForm.revision = item.revision;
+          this.onSubmit(event, submitForm, null);
+        },
         onSubmit(event, submitForm, refId) {
           event.preventDefault();
           console.log('Submit');
@@ -532,7 +644,9 @@
               } else {
                 var stackTrace = response.data.stackTrace;
                 if (!stackTrace || stackTrace.length == 0) {
-                  this.$refs[refId].hide();
+                  if(refId){
+                    this.$refs[refId].hide();
+                  }
                   console.log("ID:" + id);
                   if (!id || id.length == 0) {
                     console.log('push to table');

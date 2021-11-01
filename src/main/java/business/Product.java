@@ -26,6 +26,9 @@ public class Product extends CouchDocument {
     }
 
     public String getDiscount(Customer cust){
+        if(cust == null){
+            return defaultDiscount;
+        }
         String d = customerDiscount.get(cust.getName());
         if(d == null){
             return defaultDiscount;

@@ -1,8 +1,7 @@
 package app.controller;
 
 import app.exception.RequestContext;
-import business.CouchDocument;
-import business.SaveResult;
+import business.*;
 import org.jsoup.helper.StringUtil;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Response;
@@ -38,6 +37,8 @@ public class BusinessController {
     public static final String ID_KEY = "id";
     public static final String REVISION_KEY = "revision";
     public static final String NARRATIVE_KEY = "narrative";
+    public static final String METHOD_KEY = "method";
+
     public static final List<String> IGNORE_KEY_LIST = new ArrayList<String>();
 
     static{
@@ -80,9 +81,23 @@ public class BusinessController {
                     d.addNarrative("Updated by on");
                 }
             }
-            for (String k : keys) {
-                if (!IGNORE_KEY_LIST.contains(k)) {
-                    callSetter(d, k, request.get(k), r);
+
+            String method = request.get(METHOD_KEY);
+            if(!StringUtil.isBlank(method)) {
+                if(method.equals("addProductRecord")) {
+                    String productName = request.get("productName");
+                    CouchDbClient productDBClient = CouchDBUtil.getDbClient(Product.class);
+                    List<Product> list = productDBClient.findDocs(
+                            "{\"selector\": {\"name\": {\"$eq\": \""+productName+"\"}}}", Product.class);
+                    int qty = Integer.parseInt(request.get("quantity"));
+                    boolean isPromo = Boolean.parseBoolean(request.get("isPromo"));
+                    ((Order) d).addProductRecord(list.get(0), qty, isPromo);
+                }
+            } else {
+                for (String k : keys) {
+                    if (!IGNORE_KEY_LIST.contains(k)) {
+                        callSetter(d, k, request.get(k), r);
+                    }
                 }
             }
             System.out.println("Save to DB: " + d);
