@@ -318,9 +318,138 @@
                     </b-table>
                 </b-tab>
                 <b-tab title="Payment"><b-card-text>Tab contents 4</b-card-text></b-tab>
-                <b-tab title="Agent"><b-card-text>Tab contents 6</b-card-text></b-tab>
-                <b-tab title="Category"><b-card-text>Tab contents 6</b-card-text></b-tab>
-                <b-tab title="Trucking"><b-card-text>Tab contents 6</b-card-text></b-tab>
+                <b-tab title="Agent">
+                    <b-button @click="newFormGeneric(agentForm, defaultAgentValues, 'bv-modal-agent')">New</b-button>
+                    <b-button @click="refresh('agentTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-agent" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, agentForm, 'bv-modal-agent')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="agentForm.name"/>
+                            </b-form-group>
+                            <b-form-group label="Address:">
+                                <b-form-input v-model="agentForm.address"/>
+                            </b-form-group>
+                            <b-form-group label="Telephone:">
+                                <b-form-input v-model="agentForm.telephone"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="agentTable" bordered striped hover sticky-header="600px" :items="agentList" :fields="agentFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, agentForm, 'bv-modal-agent')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
+                <b-tab title="Category">
+                    <b-button @click="newFormGeneric(categoryForm, defaultCategoryValues, 'bv-modal-category')">New</b-button>
+                    <b-button @click="refresh('categoryTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-category" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, categoryForm, 'bv-modal-category')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="categoryForm.name"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="categoryTable" bordered striped hover sticky-header="600px" :items="categoryList" :fields="categoryFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, categoryForm, 'bv-modal-category')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
+                <b-tab title="Trucking">
+                    <b-button @click="newFormGeneric(agentForm, defaultTruckingValues, 'bv-modal-trucking')">New</b-button>
+                    <b-button @click="refresh('truckingTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-trucking" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, truckingForm, 'bv-modal-trucking')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="truckingForm.name"/>
+                            </b-form-group>
+                            <b-form-group label="Address:">
+                                <b-form-input v-model="truckingForm.address"/>
+                            </b-form-group>
+                            <b-form-group label="Telephone:">
+                                <b-form-input v-model="truckingForm.telephone"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="truckingTable" bordered striped hover sticky-header="600px" :items="truckingList" :fields="truckingFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, agentForm, 'bv-modal-agent')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
             </b-tabs>
 
     </div>
@@ -393,6 +522,41 @@
           name: '',
           value: '',
           table: 'Counter',
+          id: '',
+          revision: ''
+        },
+        defaultCategoryValues: {
+          name: ''
+        },
+        categoryForm: {
+          name: '',
+          table: 'Category',
+          id: '',
+          revision: ''
+        },
+        defaultAgentValues: {
+          name: '',
+          address: '',
+          telephone: ''
+        },
+        agentForm: {
+          name: '',
+          address: '',
+          telephone: '',
+          table: 'Agent',
+          id: '',
+          revision: ''
+        },
+        defaultTruckingValues: {
+          name: '',
+          address: '',
+          telephone: ''
+        },
+        truckingForm: {
+          name: '',
+          address: '',
+          telephone: '',
+          table: 'Trucking',
           id: '',
           revision: ''
         },
@@ -469,6 +633,47 @@
           },
           {
             key: 'value'
+          }
+        ],
+        categoryFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'name',
+            sortable: true
+          }
+        ],
+        agentFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'name',
+            sortable: true
+          },
+          {
+            key: 'address'
+          },
+          {
+            key: 'telephone',
+            label: 'Tel Number'
+          }
+        ],
+        truckingFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'name',
+            sortable: true
+          },
+          {
+            key: 'address'
+          },
+          {
+            key: 'telephone',
+            label: 'Tel Number'
           }
         ],
         orderFields: [{
@@ -596,6 +801,15 @@
         },
         counterList(ctx, callback) {
           this.getData(ctx, callback, 'Counter');
+        },
+        categoryList(ctx, callback) {
+          this.getData(ctx, callback, 'Category');
+        },
+        agentList(ctx, callback) {
+          this.getData(ctx, callback, 'Agent');
+        },
+        truckingList(ctx, callback) {
+          this.getData(ctx, callback, 'Trucking');
         },
         orderList(ctx, callback) {
           this.getData(ctx, callback, 'Order');
