@@ -317,7 +317,52 @@
                         </template>
                     </b-table>
                 </b-tab>
-                <b-tab title="Payment"><b-card-text>Tab contents 4</b-card-text></b-tab>
+                <b-tab title="Payment">
+                    <b-button @click="newFormGeneric(paymentForm, defaultPaymentValues, 'bv-modal-payment')">New</b-button>
+                    <b-button @click="refresh('paymentTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-payment" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, paymentForm, 'bv-modal-payment')">
+                            <b-form-group label="Check No:">
+                                <b-form-input v-model="paymentForm.checkNo"/>
+                            </b-form-group>
+                            <b-form-group label="Bank:">
+                                <b-form-input v-model="paymentForm.bank"/>
+                            </b-form-group>
+                            <b-form-group label="Value:">
+                                <b-form-input v-model="paymentForm.value"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="paymentTable" bordered striped hover sticky-header="600px" :items="paymentList" :fields="paymentFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, paymentForm, 'bv-modal-payment')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
                 <b-tab title="Agent">
                     <b-button @click="newFormGeneric(agentForm, defaultAgentValues, 'bv-modal-agent')">New</b-button>
                     <b-button @click="refresh('agentTable')">Refresh Table</b-button>
@@ -405,7 +450,7 @@
                     </b-table>
                 </b-tab>
                 <b-tab title="Trucking">
-                    <b-button @click="newFormGeneric(agentForm, defaultTruckingValues, 'bv-modal-trucking')">New</b-button>
+                    <b-button @click="newFormGeneric(truckingForm, defaultTruckingValues, 'bv-modal-trucking')">New</b-button>
                     <b-button @click="refresh('truckingTable')">Refresh Table</b-button>
                     <b-modal ref="bv-modal-trucking" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
@@ -441,7 +486,7 @@
                         </template>
                         <template #cell(edit)="row">
                             <b>{{ row.index + 1 }}</b>
-                            <b-button size="sm" @click="edit(row.item, agentForm, 'bv-modal-agent')" class="mr-1">
+                            <b-button size="sm" @click="edit(row.item, truckingForm, 'bv-modal-trucking')" class="mr-1">
                                 Edit
                             </b-button>
                         </template>
@@ -531,6 +576,19 @@
         categoryForm: {
           name: '',
           table: 'Category',
+          id: '',
+          revision: ''
+        },
+        defaultPaymentValues: {
+          checkNo: '',
+          bank: '',
+          value: ''
+        },
+        paymentForm: {
+          checkNo: '',
+          bank: '',
+          value: '',
+          table: 'Payment',
           id: '',
           revision: ''
         },
@@ -641,6 +699,23 @@
           },
           {
             key: 'name',
+            sortable: true
+          }
+        ],
+        paymentFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'checkNo',
+            sortable: true
+          },
+          {
+            key: 'bank',
+            sortable: true
+          },
+          {
+            key: 'value',
             sortable: true
           }
         ],
@@ -804,6 +879,9 @@
         },
         categoryList(ctx, callback) {
           this.getData(ctx, callback, 'Category');
+        },
+        paymentList(ctx, callback) {
+          this.getData(ctx, callback, 'Payment');
         },
         agentList(ctx, callback) {
           this.getData(ctx, callback, 'Agent');
