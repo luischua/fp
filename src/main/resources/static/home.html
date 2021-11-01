@@ -132,6 +132,9 @@
                             <b-button size="sm" @click="row.toggleDetails">
                                 {{ row.detailsShowing ? 'Hide' : 'Show' }} Order Details
                             </b-button>
+                            <b-button size="sm" @click="download(row.item.id)" class="mr-1">
+                                Download XLS
+                            </b-button>
                         </template>
                         <template #cell(receiptNo)="data">
                             {{ data.value }}
@@ -601,6 +604,9 @@
             this.infoModal.title = `Row index: ${index}`
             this.infoModal.content = JSON.stringify(item, null, 2)
             this.$root.$emit('bv::show::modal', this.infoModal.id, button)
+        },
+        download(id) {
+          window.location = '/generateXLS?id=' + id
         },
         resetInfoModal() {
             this.infoModal.title = ''
