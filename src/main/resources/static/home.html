@@ -21,7 +21,6 @@
         <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
             Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
         </b-alert>
-        <b-card no-body>
             <b-tabs pills card vertical>
                 <b-tab title="Customer" active>
                     <b-button @click="newFormGeneric(customerForm, defaultCustomerValues, 'bv-modal-customer')">New</b-button>
@@ -59,7 +58,7 @@
                             <b-form-input v-model="customerForm.revision" style="display:none;"/>
                         </b-form>
                     </b-modal>
-                    <b-table  ref="customerTable" bordered striped hover sticky-header :items="customerList" :fields="customerFields"
+                    <b-table  ref="customerTable" bordered striped hover sticky-header="600px" :items="customerList" :fields="customerFields"
                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                         <template #table-busy>
                             <div class="text-center text-danger my-2">
@@ -114,7 +113,7 @@
                             <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
                     </b-modal>
-                    <b-table  ref="orderTable" bordered striped hover sticky-header :items="orderList" :fields="orderFields"
+                    <b-table  ref="orderTable" bordered striped hover sticky-header="600px" :items="orderList" :fields="orderFields"
                               :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                         <template #table-busy>
                             <div class="text-center text-danger my-2">
@@ -174,7 +173,7 @@
                                     >Promo</b-form-checkbox>
                                     <b-button type="submit" variant="primary">Add</b-button>
                                 </b-form>
-                                <b-table  ref="orderDetailProductTable" bordered striped hover sticky-header :items="row.item.products" :fields="orderDetailProductFields"
+                                <b-table  ref="orderDetailProductTable" bordered striped hover sticky-header="600px" :items="row.item.products" :fields="orderDetailProductFields"
                                           :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                                     <template #table-busy>
                                         <div class="text-center text-danger my-2">
@@ -198,7 +197,7 @@
                                         {{ data.value }}
                                     </template>
                                 </b-table>
-                                <b-table  ref="orderDetailPromoTable" bordered striped hover sticky-header :items="row.item.promo" :fields="orderDetailPromoFields"
+                                <b-table  ref="orderDetailPromoTable" bordered striped hover sticky-header="600px" :items="row.item.promo" :fields="orderDetailPromoFields"
                                           :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                                     <template #table-busy>
                                         <div class="text-center text-danger my-2">
@@ -241,7 +240,7 @@
                             <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
                     </b-modal>
-                    <b-table  ref="counterTable" bordered striped hover sticky-header :items="counterList" :fields="counterFields"
+                    <b-table  ref="counterTable" bordered striped hover sticky-header="600px" :items="counterList" :fields="counterFields"
                               :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                         <template #table-busy>
                             <div class="text-center text-danger my-2">
@@ -290,7 +289,7 @@
                             <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
                     </b-modal>
-                    <b-table  ref="productTable" bordered striped hover sticky-header :items="productList" :fields="productFields"
+                    <b-table  ref="productTable" bordered striped hover sticky-header="600px" :items="productList" :fields="productFields"
                               :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                         <template #table-busy>
                             <div class="text-center text-danger my-2">
@@ -318,8 +317,9 @@
                 <b-tab title="Payment"><b-card-text>Tab contents 4</b-card-text></b-tab>
                 <b-tab title="Agent"><b-card-text>Tab contents 6</b-card-text></b-tab>
                 <b-tab title="Category"><b-card-text>Tab contents 6</b-card-text></b-tab>
+                <b-tab title="Trucking"><b-card-text>Tab contents 6</b-card-text></b-tab>
             </b-tabs>
-        </b-card>
+
     </div>
 
     <!-- Add Vue and Bootstrap-Vue JS just before the closing </body> tag -->

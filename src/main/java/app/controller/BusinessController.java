@@ -3,20 +3,33 @@ package app.controller;
 import app.exception.RequestContext;
 import business.*;
 import org.jsoup.helper.StringUtil;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.core.io.Resource;
 import util.BusinessUtil;
 import util.CouchDBUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.beans.PropertyDescriptor;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -185,5 +198,32 @@ public class BusinessController {
             e.printStackTrace();
         }
         return documentList;
+    }
+
+    @GetMapping("/generateXLS")
+    public ResponseEntity<Resource> generateXLS(HttpServletRequest request) throws Exception{
+        String orderId = request.getParameter("id");
+        Order order = (Order) CouchDocument.findById(orderId, Order.class);
+        Customer customer = (Customer) CouchDocument.findById(order.getCustomerId(), Customer.class);
+        System.out.println(order);
+        System.out.println(customer);
+        String fileName = order.getReceiptNo() + ".xlsx";
+        File output = new File(fileName);
+        try(InputStream is = Order.class.getClassLoader().getResourceAsStream("jxl_template.xlsx")) {
+            try (OutputStream os = new FileOutputStream(output)) {
+                Context context = new Context();
+                context.putVar("order",  order);
+                context.putVar("customer",  customer);
+                JxlsHelper.getInstance().processTemplate(is, os, context);
+            }
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(Paths.get(fileName)));
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(output.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 }

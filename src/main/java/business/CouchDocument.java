@@ -2,7 +2,9 @@ package business;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.lightcouch.CouchDbClient;
 import org.lightcouch.Document;
+import util.CouchDBUtil;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -25,5 +27,10 @@ public class CouchDocument extends Document {
 
     public void beforeSave(){
 
+    }
+
+    public static CouchDocument findById(String id, Class clz){
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
+        return (CouchDocument)dbClient.find(clz, id);
     }
 }
