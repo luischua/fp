@@ -18,6 +18,13 @@
         <datalist id="productSelect">
             <option v-for="c in productDataList">{{c.name}}</option>
         </datalist>
+        <datalist id="agentSelect">
+            <option v-for="c in agentDataList">{{c.name}}</option>
+        </datalist>
+        <datalist id="truckingSelect">
+            <option v-for="c in truckingDataList">{{c.name}}</option>
+        </datalist>
+
         <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
             Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
         </b-alert>
@@ -52,6 +59,12 @@
                             <b-form-group label="Terms:">
                                 <b-form-input v-model="customerForm.terms"/>
                             </b-form-group>
+                            <b-form-group label="Agent:">
+                                <b-form-input v-model="customerForm.agentName" list="agentSelect"></b-form-input>
+                            </b-form-group>
+                            <b-form-group label="Trucking:">
+                                <b-form-input v-model="customerForm.truckingName" list="truckingSelect"></b-form-input>
+                            </b-form-group>
                             <b-button type="submit" variant="primary">Submit</b-button>
                             <b-form-input v-model="customerForm.table" value="Customer" style="display:none;"/>
                             <b-form-input v-model="customerForm.id" style="display:none;"/>
@@ -70,6 +83,9 @@
                             <b>{{ row.index + 1 }}</b>
                             <b-button size="sm" @click="edit(row.item, customerForm, 'bv-modal-customer')" class="mr-1">
                                 Edit
+                            </b-button>
+                            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
+                                Info modal
                             </b-button>
                         </template>
                         <template #cell(name)="data">
@@ -108,7 +124,7 @@
                                 <b-form-input v-model="orderForm.customerName" list="customerSelect"></b-form-input>
                             </b-form-group>
                             <b-form-group label="Order Date:">
-                                <b-calendar v-model="orderForm.orderDate" locale="en-US"></b-calendar>
+                                <b-calendar v-model="orderForm.deliveredDate" locale="en-US"></b-calendar>
                             </b-form-group>
                             <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
@@ -142,7 +158,7 @@
                         <template #cell(customerName)="data">
                             {{ data.value }}
                         </template>
-                        <template #cell(orderDate)="data">
+                        <template #cell(deliveredDate)="data">
                             {{ data.value }}
                         </template>
                         <template #cell(total)="data">
@@ -524,6 +540,8 @@
         allItems: [],
         customerDataList: [],
         productDataList: [],
+        agentDataList: [],
+        truckingDataList: [],
         infoModal: {
           id: 'info-modal',
           title: '',
@@ -535,6 +553,8 @@
           telephone: '',
           contact: '',
           terms: '60',
+          agentName: '',
+          truckingName: '',
         },
         customerForm: {
           name: '',
@@ -542,6 +562,8 @@
           telephone: '',
           contact: '',
           terms: '',
+          agentName: '',
+          truckingName: '',
           table: 'Customer',
           id: '',
           revision: ''
@@ -620,11 +642,11 @@
         },
         defaultOrderValues: {
           customerName: '',
-          orderDate: ''
+          deliveredDate: ''
         },
         orderForm: {
           customerName: '',
-          orderDate: '',
+          deliveredDate: '',
           table: 'Order',
           id: '',
           revision: ''
@@ -763,7 +785,7 @@
             sortable: true
           },
           {
-            key: 'orderDate'
+            key: 'deliveredDate'
           },
           {
             key: 'total'
@@ -859,9 +881,17 @@
                 this.customerDataList = response.data;
                 console.log(this.customerDataList);
               }
-              if(type == 'Product'){
+              else if(type == 'Product'){
                 this.productDataList = response.data;
                 console.log(this.productDataList);
+              }
+              else if(type == 'Agent'){
+                this.agentDataList = response.data;
+                console.log(this.agentDataList);
+              }
+              else if(type == 'Trucking'){
+                this.truckingDataList = response.data;
+                console.log(this.truckingDataList);
               }
             })
             .catch((error) => {
@@ -974,6 +1004,8 @@
       created(){
         this.getDataSelect('Customer');
         this.getDataSelect('Product');
+        this.getDataSelect('Agent');
+        this.getDataSelect('Trucking');
       }
     });
     </script>

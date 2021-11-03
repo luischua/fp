@@ -18,9 +18,25 @@ public class Order extends CouchDocument {
     private String customerId;
     private String customerName;
     private long receiptNo;
-    private LocalDate orderDate;
+    private int terms;
+    private LocalDate deliveredDate;
     List<ProductRecord> products;
     List<ProductRecord> promo;
+    private int month;
+    private int year;
+
+    public void setDeliveredDate(LocalDate d){
+        deliveredDate = d;
+        month = deliveredDate.getMonth().getValue();
+        year = deliveredDate.getYear();
+    }
+
+    public LocalDate getCollectionDate(){
+        if(deliveredDate != null && terms != 0) {
+            return deliveredDate.plusDays(terms);
+        }
+        return null;
+    }
 
     public void addProductRecord(Product p, int quantity) {
         addProductRecord(p, quantity, false);
@@ -66,9 +82,6 @@ public class Order extends CouchDocument {
             c.reserve(1);
             dbClient.update(c);
             receiptNo = c.getValue();
-            if(orderDate == null){
-                orderDate = LocalDate.now();
-            }
         }catch (Exception e){
             throw new RuntimeException("Can't get sequence number");
         }
@@ -79,7 +92,9 @@ public class Order extends CouchDocument {
         List<Customer> list = dbClient.findDocs(
                 "{\"selector\": {\"name\": {\"$eq\": \""+customerName+"\"}}}", Customer.class);
         if(list.size() > 0) {
-            customerId = list.get(0).getId();
+            Customer c = list.get(0);
+            customerId = c.getId();
+            terms = c.getTerms();
         }
     }
 }

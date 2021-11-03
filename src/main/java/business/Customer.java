@@ -16,8 +16,17 @@ public class Customer extends CouchDocument {
     private String contact;
     private int terms;
     private String companyId;
+    private String truckingId;
+    private String truckingName;
+    private String agentId;
+    private String agentName;
     public Company findCompany(){
         CouchDbClient client = CouchDBUtil.getDbClient(Company.class);
         return client.find(Company.class, companyId);
+    }
+
+    public void beforeSave() {
+        truckingId = getDBId(truckingName, Trucking.class);
+        agentId = getDBId(agentName, Agent.class);
     }
 }

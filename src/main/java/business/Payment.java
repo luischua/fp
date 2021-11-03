@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -15,4 +16,5 @@ public class Payment extends CouchDocument{
     private String checkNo;
     private String bank;
     private BigDecimal value;
+    private LocalDate clearingDate;
 }

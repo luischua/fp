@@ -8,3 +8,13 @@ Start CouchDb
 2.) cd C:\Program Files\Apache CouchDB\bin
 3.) couchdb
 4.) http://localhost:5984/_utils/index.html
+
+{
+   "index": {
+      "fields": [
+         {"lastEdited":"desc"}
+      ]
+   },
+   "name": "last-edited-index",
+   "type": "json"
+}

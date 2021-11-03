@@ -79,7 +79,7 @@ public class BusinessController {
             String id = request.get(ID_KEY);
             if(StringUtil.isBlank(id)) {
                 d = (CouchDocument) clz.getDeclaredConstructor().newInstance();
-                d.addNarrative("Created;");
+                d.addNarrative("Created by Luis on "+LocalDate.now()+";");
             }else{
                 d = (CouchDocument) dbClient.find(clz, id);
                 String revision = request.get(REVISION_KEY);
@@ -91,7 +91,7 @@ public class BusinessController {
                     r.setResult(d);
                     return r;
                 }else {
-                    d.addNarrative("Updated by on");
+                    d.addNarrative("Updated by Luis on"+LocalDate.now()+";");
                 }
             }
 
@@ -142,38 +142,39 @@ public class BusinessController {
             String type = pd.getPropertyType().getTypeName();
             if ("java.lang.String".equals(type)){
                 pd.getWriteMethod().invoke(obj, value);
-            } else if ("java.math.BigDecimal".equals(type)){
-                try{
-                    BigDecimal v = new BigDecimal(value);
-                    pd.getWriteMethod().invoke(obj, v);
-                }catch(Exception e){
-                    r.addError(fieldName + " should be a number");
+            } else if(!StringUtil.isBlank(value)){
+                if ("java.math.BigDecimal".equals(type)){
+                    try{
+                        BigDecimal v = new BigDecimal(value);
+                        pd.getWriteMethod().invoke(obj, v);
+                    }catch(Exception e){
+                        r.addError(fieldName + " should be a number");
+                    }
+                } else if ("java.time.LocalDate".equals(type)){
+                    try{
+                        LocalDate v = LocalDate.parse(value);
+                        pd.getWriteMethod().invoke(obj, v);
+                    }catch(Exception e){
+                        r.addError(fieldName + " should be a date");
+                    }
+                } else if ("int".equals(type)) {
+                    try{
+                        int v = Integer.parseInt(value);
+                        pd.getWriteMethod().invoke(obj, v);
+                    }catch(Exception e){
+                        r.addError(fieldName + " should be a number");
+                    }
+                } else if ("long".equals(type)) {
+                    try{
+                        long v = Long.parseLong(value);
+                        pd.getWriteMethod().invoke(obj, v);
+                    }catch(Exception e){
+                        r.addError(fieldName + " should be a number");
+                    }
+                } else {
+                    System.out.println("Ignoring " + fieldName);
                 }
-            } else if ("java.time.LocalDate".equals(type)){
-                try{
-                    LocalDate v = LocalDate.parse(value);
-                    pd.getWriteMethod().invoke(obj, v);
-                }catch(Exception e){
-                    r.addError(fieldName + " should be a date");
-                }
-            } else if ("int".equals(type)) {
-                try{
-                    int v = Integer.parseInt(value);
-                    pd.getWriteMethod().invoke(obj, v);
-                }catch(Exception e){
-                    r.addError(fieldName + " should be a number");
-                }
-            } else if ("long".equals(type)) {
-                try{
-                    long v = Long.parseLong(value);
-                    pd.getWriteMethod().invoke(obj, v);
-                }catch(Exception e){
-                    r.addError(fieldName + " should be a number");
-                }
-            } else {
-                System.out.println("Ignoring " + fieldName);
             }
-
         }
     }
 
@@ -193,7 +194,13 @@ public class BusinessController {
         try{
             clz = Class.forName(tableClass);
             CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
-            documentList =  dbClient.view("_all_docs").queryPage(rows, page, clz).getResultList();
+            if(table.equals("OOrder")){
+                documentList = dbClient.findDocs(
+                        "{\"selector\": {\"lastEdited\": {\"$gt\": \""+0+"\"}}"+
+                                "}", clz);
+            }else {
+                documentList = dbClient.view("_all_docs").queryPage(rows, page, clz).getResultList();
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -205,6 +212,9 @@ public class BusinessController {
         String orderId = request.getParameter("id");
         Order order = (Order) CouchDocument.findById(orderId, Order.class);
         Customer customer = (Customer) CouchDocument.findById(order.getCustomerId(), Customer.class);
+        Trucking trucking = (Trucking) CouchDocument.findById(customer.getTruckingId(), Trucking.class);
+        Agent agent  = (Agent) CouchDocument.findById(customer.getAgentId(), Agent.class);
+
         System.out.println(order);
         System.out.println(customer);
         String fileName = order.getReceiptNo() + ".xlsx";
@@ -214,6 +224,9 @@ public class BusinessController {
                 Context context = new Context();
                 context.putVar("order",  order);
                 context.putVar("customer",  customer);
+                context.putVar("trucking",  trucking);
+                context.putVar("agent",  agent);
+                context.putVar("generateTime",  LocalDate.now());
                 JxlsHelper.getInstance().processTemplate(is, os, context);
             }
         }
