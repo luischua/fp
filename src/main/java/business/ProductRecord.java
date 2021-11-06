@@ -11,6 +11,7 @@ public class ProductRecord{
     private BigDecimal price;
     private int quantity;
     private String discount;
+    private String displayOrdering = "zzz";
     public BigDecimal getTotal(){
         return this.getPrice().multiply(new BigDecimal(quantity)).multiply(Discount.calculateDiscount(discount)).setScale(2, RoundingMode.UP);
     }

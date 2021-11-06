@@ -15,6 +15,9 @@ public class Product extends CouchDocument {
     private String name;
     private BigDecimal price;
     private String defaultDiscount;
+    private String categoryId;
+    private String categoryName;
+    private String displayOrdering;
     private Map<String, String> customerDiscount = new HashMap<String, String>();
 
     public Product(){

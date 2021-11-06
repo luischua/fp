@@ -3,10 +3,8 @@ package business;
 import lombok.Data;
 
 import java.math.BigDecimal;
-
 @Data
-public class PaymentRecord {
-    private String orderId;
-    private long receiptNo;
+public class OrderPayment {
+    private long paymentNo;
     private BigDecimal value;
 }

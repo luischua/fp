@@ -9,7 +9,11 @@ import util.CouchDBUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Data
 @EqualsAndHashCode(callSuper=false)
 @ToString(callSuper=true)
@@ -24,13 +28,18 @@ public class Order extends CouchDocument {
     private LocalDate paidDate;
     List<ProductRecord> products;
     List<ProductRecord> promo;
-    private int month;
-    private int year;
+    Map<String, OrderPayment> payments;
+    private OrderPeriod period;
+
+    public void addPayments(String paymentId, OrderPayment p){
+        payments.put(paymentId, p);
+    }
 
     public void setDeliveredDate(LocalDate d){
         deliveredDate = d;
-        month = deliveredDate.getMonth().getValue();
-        year = deliveredDate.getYear();
+        period.setMonth(deliveredDate.getMonth().getValue());
+        period.setYear(deliveredDate.getYear());
+        period.setYearMonth(period.getYear()*100+period.getMonth());
     }
 
     public LocalDate getCollectionDate(){
@@ -49,6 +58,7 @@ public class Order extends CouchDocument {
         record.setName(p.getName());
         record.setPrice(p.getPrice());
         record.setQuantity(quantity);
+        record.setDisplayOrdering(p.getDisplayOrdering());
         record.setDiscount(p.getDiscount(customer));
         if(products == null){
             products = new ArrayList<ProductRecord>();
@@ -62,6 +72,10 @@ public class Order extends CouchDocument {
         else{
             products.add(record);
         }
+        //sort using stream
+        products = products.stream()
+                .sorted(Comparator.comparing(ProductRecord::getDisplayOrdering))
+                .collect(Collectors.toList());
     }
 
     public BigDecimal getTotal(){

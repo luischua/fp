@@ -24,6 +24,9 @@
         <datalist id="truckingSelect">
             <option v-for="c in truckingDataList">{{c.name}}</option>
         </datalist>
+        <datalist id="categorySelect">
+            <option v-for="c in categoryDataList">{{c.name}}</option>
+        </datalist>
 
         <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
             Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
@@ -299,11 +302,17 @@
                             <b-form-group label="Name:">
                                 <b-form-input v-model="productForm.name"/>
                             </b-form-group>
+                            <b-form-group label="Category:">
+                                <b-form-input v-model="productForm.categoryName" list="categorySelect"></b-form-input>
+                            </b-form-group>
                             <b-form-group label="Price:">
                                 <b-form-input v-model="productForm.price"/>
                             </b-form-group>
                             <b-form-group label="Default Discount:">
                                 <b-form-input v-model="productForm.defaultDiscount"/>
+                            </b-form-group>
+                            <b-form-group label="Display Ordering (ex. a1,a2,b1,b2):">
+                                <b-form-input v-model="productForm.displayOrdering"/>
                             </b-form-group>
                             <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
@@ -348,14 +357,32 @@
                             </b-card>
                         </b-alert>
                         <b-form @submit="onSubmit($event, paymentForm, 'bv-modal-payment')">
-                            <b-form-group label="Check No:">
-                                <b-form-input v-model="paymentForm.checkNo"/>
+                            <b-form-group label="Type:">
+                                <b-form-radio-group
+                                        v-model="paymentForm.type"
+                                >
+                                    <b-form-radio value="check">Check</b-form-radio>
+                                    <b-form-radio value="online">Online</b-form-radio>
+                                    <b-form-radio value="cash">Cash</b-form-radio>
+                                </b-form-radio-group>
+                            </b-form-group>
+                            <b-form-group label="Receipt Number:">
+                                <b-form-input v-model="paymentForm.receiptNoList"/>
+                            </b-form-group>
+                            <b-form-group label="Value:">
+                                <b-form-input v-model="paymentForm.value"/>
                             </b-form-group>
                             <b-form-group label="Bank:">
                                 <b-form-input v-model="paymentForm.bank"/>
                             </b-form-group>
-                            <b-form-group label="Value:">
-                                <b-form-input v-model="paymentForm.value"/>
+                            <b-form-group label="Check No:">
+                                <b-form-input v-model="paymentForm.checkNo"/>
+                            </b-form-group>
+                            <b-form-group label="Clearing Date:">
+                                <b-calendar v-model="paymentForm.clearingDate" locale="en-US"></b-calendar>
+                            </b-form-group>
+                            <b-form-group label="Bounced Date:">
+                                <b-calendar v-model="paymentForm.bouncedDate" locale="en-US"></b-calendar>
                             </b-form-group>
                             <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
@@ -372,6 +399,9 @@
                             <b>{{ row.index + 1 }}</b>
                             <b-button size="sm" @click="edit(row.item, paymentForm, 'bv-modal-payment')" class="mr-1">
                                 Edit
+                            </b-button>
+                            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
+                                Info modal
                             </b-button>
                         </template>
                         <template #cell(name)="data">
@@ -542,6 +572,7 @@
         productDataList: [],
         agentDataList: [],
         truckingDataList: [],
+        categoryDataList: [],
         infoModal: {
           id: 'info-modal',
           title: '',
@@ -571,11 +602,15 @@
         defaultProductValues: {
           name: '',
           price: '',
+          categoryName: '',
+          displayOrdering: '',
           defaultDiscount: 'NET',
         },
         productForm: {
           name: '',
           price: '',
+          categoryName: '',
+          displayOrdering: '',
           defaultDiscount: '',
           table: 'Product',
           id: '',
@@ -602,14 +637,22 @@
           revision: ''
         },
         defaultPaymentValues: {
-          checkNo: '',
-          bank: '',
-          value: ''
-        },
-        paymentForm: {
+          type: 'check',
+          receiptNoList: '',
           checkNo: '',
           bank: '',
           value: '',
+          clearingDate: '',
+          bouncedDate: ''
+        },
+        paymentForm: {
+          type: '',
+          receiptNoList: '',
+          checkNo: '',
+          bank: '',
+          value: '',
+          clearingDate: '',
+          bouncedDate: '',
           table: 'Payment',
           id: '',
           revision: ''
@@ -893,6 +936,10 @@
                 this.truckingDataList = response.data;
                 console.log(this.truckingDataList);
               }
+              else if(type == 'Category'){
+                this.categoryDataList = response.data;
+                console.log(this.categoryDataList);
+              }
             })
             .catch((error) => {
               console.log(error);
@@ -1006,6 +1053,7 @@
         this.getDataSelect('Product');
         this.getDataSelect('Agent');
         this.getDataSelect('Trucking');
+        this.getDataSelect('Category');
       }
     });
     </script>
