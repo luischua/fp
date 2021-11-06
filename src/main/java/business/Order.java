@@ -20,6 +20,8 @@ public class Order extends CouchDocument {
     private long receiptNo;
     private int terms;
     private LocalDate deliveredDate;
+    private LocalDate canceledDate;
+    private LocalDate paidDate;
     List<ProductRecord> products;
     List<ProductRecord> promo;
     private int month;
@@ -74,6 +76,7 @@ public class Order extends CouchDocument {
     }
 
     public void beforeNew(){
+        super.beforeNew();
         try {
             CouchDbClient dbClient = CouchDBUtil.getDbClient(Counter.class);
             List<Counter> list = dbClient.findDocs(
@@ -88,6 +91,7 @@ public class Order extends CouchDocument {
     }
 
     public void beforeSave(){
+        super.beforeSave();
         CouchDbClient dbClient = CouchDBUtil.getDbClient(Customer.class);
         List<Customer> list = dbClient.findDocs(
                 "{\"selector\": {\"name\": {\"$eq\": \""+customerName+"\"}}}", Customer.class);
@@ -96,5 +100,29 @@ public class Order extends CouchDocument {
             customerId = c.getId();
             terms = c.getTerms();
         }
+    }
+
+    public void afterSave(){
+        computeOrderStats(customerId);
+    }
+
+    public static void computeOrderStats(String customerId){
+        List<Order> orders = (List<Order>)CouchDocument.retreiveByFkId(customerId, Order.class, "Order/byCustomerId");
+        OrderStats stats = new OrderStats();
+        for(Order order: orders){
+            if(order.getCanceledDate() != null){
+                stats.getCancelled().addTotal(order.getTotal(), order.getReceiptNo());
+            } else if(order.getDeliveredDate() != null) {
+                stats.getToBeCollected().addTotal(order.getTotal(), order.getReceiptNo());
+            } else if(order.getPaidDate() != null) {
+                stats.getPaid().addTotal(order.getTotal(), order.getReceiptNo());
+            } else{
+                stats.getToBeDelivered().addTotal(order.getTotal(), order.getReceiptNo());
+            }
+        }
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(Customer.class);
+        Customer c = dbClient.find(Customer.class, customerId);
+        c.setOrderStats(stats);
+        dbClient.update(c);
     }
 }

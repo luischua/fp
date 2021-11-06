@@ -6,6 +6,7 @@ import org.lightcouch.CouchDbClient;
 import org.lightcouch.Document;
 import util.CouchDBUtil;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -13,11 +14,7 @@ import java.util.List;
 public class CouchDocument extends Document {
 
     private String narrative = "";
-    private long lastEdited = System.currentTimeMillis();
-
-    public void setLastEdited(long s){
-        //don't allow setting
-    }
+    private LocalDateTime lastEdited;
 
     public void addNarrative(String s){
         narrative = narrative.concat(s);
@@ -32,11 +29,23 @@ public class CouchDocument extends Document {
     }
 
     public void beforeSave(){
+        lastEdited = LocalDateTime.now();
+    }
+
+    public void afterSave(){
     }
 
     public static CouchDocument findById(String id, Class clz){
         CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
         return (CouchDocument)dbClient.find(clz, id);
+    }
+
+    public static List retreiveByFkId(String id, Class clz, String view){
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
+        return dbClient.view(view)
+                .key(id)
+                .includeDocs(true)
+                .query(clz);
     }
 
     public String getDBId(String name, Class clz){

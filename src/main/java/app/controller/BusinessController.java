@@ -122,6 +122,7 @@ public class BusinessController {
             }else{
                 response = dbClient.update(d);
             }
+            d.afterSave();
             d.setId(response.getId());
             d.setRevision(response.getRev());
             r.setResult(d);
@@ -194,10 +195,11 @@ public class BusinessController {
         try{
             clz = Class.forName(tableClass);
             CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
-            if(table.equals("OOrder")){
-                documentList = dbClient.findDocs(
-                        "{\"selector\": {\"lastEdited\": {\"$gt\": \""+0+"\"}}"+
-                                "}", clz);
+            if(table.equals("Order")){
+                documentList = dbClient.view("Order/byLastEdited")
+                        .includeDocs(true)
+                        .descending(true)
+                        .query(clz);
             }else {
                 documentList = dbClient.view("_all_docs").queryPage(rows, page, clz).getResultList();
             }
