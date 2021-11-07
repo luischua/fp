@@ -27,6 +27,7 @@ public class Order extends CouchDocument {
     List<ProductRecord> promo;
     Map<String, OrderPayment> payments;
     private OrderPeriod period;
+    private boolean paymentExceeded;
 
     public void addPayments(String paymentId, OrderPayment p){
         if(payments == null){
@@ -36,12 +37,17 @@ public class Order extends CouchDocument {
         if( getTotalPayments().compareTo(getTotal()) == 0 ){
             paidDate = LocalDate.now();
         }
+        if( getTotalPayments().compareTo(getTotal()) == 1 ){
+            paymentExceeded = true;
+        }
     }
 
     public BigDecimal getTotalPayments(){
         BigDecimal total = new BigDecimal(0);
-        for(OrderPayment s : payments.values()){
-            total = total.add(s.getValue());
+        if(payments != null) {
+            for(OrderPayment s : payments.values()){
+                total = total.add(s.getValue());
+            }
         }
         return total;
     }

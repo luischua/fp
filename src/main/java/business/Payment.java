@@ -59,6 +59,8 @@ public class Payment extends CouchDocument{
                     .query(Order.class);
             receiptNos = new ArrayList<PaymentRecord>();
             System.out.println(orderList);
+            customerId = null;
+            customerName = null;
             BigDecimal paymentAmount = getValue();
             for (Order o : orderList) {
                 PaymentRecord p = new PaymentRecord();
@@ -72,9 +74,6 @@ public class Payment extends CouchDocument{
                 }
                 if(o.getDeliveredDate() == null){
                     r.addError(o.getReceiptNo()+" not yet delivered");
-                }
-                if(o.getPaidDate() != null){
-                    r.addError(o.getReceiptNo()+" already paid. Might be redundant check issued.");
                 }
                 p.setOrderId(o.getId());
                 p.setReceiptNo(o.getReceiptNo());

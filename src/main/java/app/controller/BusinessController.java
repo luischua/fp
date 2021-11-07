@@ -116,8 +116,14 @@ public class BusinessController {
             System.out.println("Save to DB: " + d);
             Response response;
             d.beforeSave(r);
+            if(r.hasError()){
+                return r;
+            }
             if(StringUtil.isBlank(id)){
                 d.beforeNew(r);
+                if(r.hasError()){
+                    return r;
+                }
                 response = dbClient.save(d);
             }else{
                 response = dbClient.update(d);

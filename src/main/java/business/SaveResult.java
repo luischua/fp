@@ -13,4 +13,11 @@ public class SaveResult {
     public void addError(String s){
         error.add(s.replace("\r\n", "<br/><br><br>"));
     }
+    public boolean hasError(){
+        if(error.size() > 0){
+            return true;
+        }
+        return false;
+    }
+
 }
