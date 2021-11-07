@@ -25,14 +25,14 @@ public class CouchDocument extends Document {
         return "CouchDocument(id="+getId()+", revision="+getRevision()+", narrative="+narrative+")";
     }
 
-    public void beforeNew(){
+    public void beforeNew(SaveResult r){
     }
 
-    public void beforeSave(){
+    public void beforeSave(SaveResult r){
         lastEdited = LocalDateTime.now();
     }
 
-    public void afterSave(){
+    public void afterSave(SaveResult r){
     }
 
     public static CouchDocument findById(String id, Class clz){

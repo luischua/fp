@@ -115,18 +115,17 @@ public class BusinessController {
             }
             System.out.println("Save to DB: " + d);
             Response response;
-            d.beforeSave();
+            d.beforeSave(r);
             if(StringUtil.isBlank(id)){
-                d.beforeNew();
+                d.beforeNew(r);
                 response = dbClient.save(d);
             }else{
                 response = dbClient.update(d);
             }
-            d.afterSave();
             d.setId(response.getId());
             d.setRevision(response.getRev());
             r.setResult(d);
-
+            d.afterSave(r);
         } catch (Exception e) {
             e.printStackTrace();
             r.setStackTrace(BusinessUtil.convertStackTraceToString(e));

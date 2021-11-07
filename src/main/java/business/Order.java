@@ -8,10 +8,7 @@ import util.CouchDBUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -32,7 +29,21 @@ public class Order extends CouchDocument {
     private OrderPeriod period;
 
     public void addPayments(String paymentId, OrderPayment p){
+        if(payments == null){
+            payments = new HashMap<String, OrderPayment>();
+        }
         payments.put(paymentId, p);
+        if( getTotalPayments().compareTo(getTotal()) == 0 ){
+            paidDate = LocalDate.now();
+        }
+    }
+
+    public BigDecimal getTotalPayments(){
+        BigDecimal total = new BigDecimal(0);
+        for(OrderPayment s : payments.values()){
+            total = total.add(s.getValue());
+        }
+        return total;
     }
 
     public void setDeliveredDate(LocalDate d){
@@ -89,8 +100,8 @@ public class Order extends CouchDocument {
         return total;
     }
 
-    public void beforeNew(){
-        super.beforeNew();
+    public void beforeNew(SaveResult r){
+        super.beforeNew(r);
         try {
             CouchDbClient dbClient = CouchDBUtil.getDbClient(Counter.class);
             List<Counter> list = dbClient.findDocs(
@@ -104,8 +115,8 @@ public class Order extends CouchDocument {
         }
     }
 
-    public void beforeSave(){
-        super.beforeSave();
+    public void beforeSave(SaveResult r){
+        super.beforeSave(r);
         CouchDbClient dbClient = CouchDBUtil.getDbClient(Customer.class);
         List<Customer> list = dbClient.findDocs(
                 "{\"selector\": {\"name\": {\"$eq\": \""+customerName+"\"}}}", Customer.class);

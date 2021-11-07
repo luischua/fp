@@ -9,4 +9,5 @@ public class PaymentRecord {
     private String orderId;
     private long receiptNo;
     private BigDecimal value;
+    private boolean partial;
 }

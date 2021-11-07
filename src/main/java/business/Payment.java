@@ -10,7 +10,6 @@ import util.CouchDBUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -28,9 +27,11 @@ public class Payment extends CouchDocument{
     private LocalDate clearingDate;
     private LocalDate bouncedDate;
     private List<PaymentRecord> receiptNos;
+    private String customerId;
+    private String customerName;
 
-    public void beforeNew(){
-        super.beforeNew();
+    public void beforeNew(SaveResult r){
+        super.beforeNew(r);
         try {
             CouchDbClient dbClient = CouchDBUtil.getDbClient(Counter.class);
             List<Counter> list = dbClient.findDocs(
@@ -44,37 +45,61 @@ public class Payment extends CouchDocument{
         }
     }
 
-    public void beforeSave() {
-        super.beforeSave();
+    public void beforeSave(SaveResult r) {
+        super.beforeSave(r);
         if(!StringUtil.isBlank(receiptNoList)) {
             CouchDbClient dbClient = CouchDBUtil.getDbClient(Order.class);
-            List<String> keyList = Arrays.asList(receiptNoList.split(","));
+            List<Long> keyList = new ArrayList<Long>();
+            for(String num :receiptNoList.split(",")){
+                keyList.add(Long.parseLong(num));
+            }
             System.out.println(keyList);
             List<Order> orderList = dbClient.view("Order/byReceiptNo").keys(keyList)
                     .includeDocs(true)
                     .query(Order.class);
             receiptNos = new ArrayList<PaymentRecord>();
             System.out.println(orderList);
+            BigDecimal paymentAmount = getValue();
             for (Order o : orderList) {
                 PaymentRecord p = new PaymentRecord();
+                if(customerId == null){
+                    customerId = o.getCustomerId();
+                    customerName = o.getCustomerName();
+                }else{
+                    if(customerId != o.getCustomerId()){
+                        r.addError("multiple receiptNo doesn't belong to one customer");
+                    }
+                }
+                if(o.getDeliveredDate() == null){
+                    r.addError(o.getReceiptNo()+" not yet delivered");
+                }
+                if(o.getPaidDate() != null){
+                    r.addError(o.getReceiptNo()+" already paid. Might be redundant check issued.");
+                }
                 p.setOrderId(o.getId());
                 p.setReceiptNo(o.getReceiptNo());
-                p.setValue(o.getTotal());
+                if(paymentAmount.compareTo(o.getTotal()) == -1){
+                    p.setValue(paymentAmount);
+                    p.setPartial(true);
+                }else{
+                    p.setValue(o.getTotal());
+                    paymentAmount = paymentAmount.subtract(p.getValue());
+                }
                 receiptNos.add(p);
             }
         }
     }
 
-    public void afterSave() {
-        super.afterSave();
+    public void afterSave(SaveResult r) {
+        super.afterSave(r);
         CouchDbClient dbClient = CouchDBUtil.getDbClient(Order.class);
-        for (PaymentRecord r : receiptNos) {
-            Order o = dbClient.find(Order.class, r.getOrderId());
+        for (PaymentRecord record : receiptNos) {
+            Order o = dbClient.find(Order.class, record.getOrderId());
             OrderPayment p = new OrderPayment();
             p.setPaymentNo(getPaymentNo());
             p.setValue(getValue());
             o.addPayments(getId(), p);
-            dbClient.save(o);
+            dbClient.update(o);
         }
     }
 }
