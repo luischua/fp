@@ -54,6 +54,7 @@ public class Order extends CouchDocument {
 
     public void setDeliveredDate(LocalDate d){
         deliveredDate = d;
+        period = new OrderPeriod();
         period.setMonth(deliveredDate.getMonth().getValue());
         period.setYear(deliveredDate.getYear());
         period.setYearMonth(period.getYear()*100+period.getMonth());
@@ -72,6 +73,7 @@ public class Order extends CouchDocument {
 
     public void addProductRecord(Product p, int quantity, boolean isPromo){
         ProductRecord record = new ProductRecord();
+        record.setProductId(p.getId());
         record.setName(p.getName());
         record.setPrice(p.getPrice());
         record.setQuantity(quantity);

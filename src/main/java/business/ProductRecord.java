@@ -7,6 +7,7 @@ import java.math.RoundingMode;
 
 @Data
 public class ProductRecord{
+    private String productId;
     private String name;
     private BigDecimal price;
     private int quantity;

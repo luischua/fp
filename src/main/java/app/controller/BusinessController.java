@@ -158,9 +158,11 @@ public class BusinessController {
                     }
                 } else if ("java.time.LocalDate".equals(type)){
                     try{
+                        System.out.println(value);
                         LocalDate v = LocalDate.parse(value);
                         pd.getWriteMethod().invoke(obj, v);
                     }catch(Exception e){
+                        e.printStackTrace();
                         r.addError(fieldName + " should be a date");
                     }
                 } else if ("int".equals(type)) {
@@ -212,6 +214,21 @@ public class BusinessController {
             e.printStackTrace();
         }
         return documentList;
+    }
+
+    @GetMapping("/monthlySales")
+    public void computeMonthlySales(){
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(Order.class);
+        int yearMonth = 202111;
+        List<Order> documentList = dbClient.view("Order/byYearMonth")
+                .key(yearMonth)
+                .limit(10000)
+                .includeDocs(true)
+                .query(Order.class);
+        CouchDbClient dbClient2 = CouchDBUtil.getDbClient(MonthlySales.class);
+        MonthlySales sales = new MonthlySales();
+        sales.computeSales(documentList);
+        dbClient2.save(sales);
     }
 
     @GetMapping("/generateXLS")
