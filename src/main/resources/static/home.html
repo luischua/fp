@@ -735,6 +735,16 @@
           id: '',
           revision: ''
         },
+        searchForm: {
+            Order: {
+                viewId: 'Order/byLastEdited',
+                searchKey: ''
+            },
+            Customer: {
+                viewId: '_all_docs',
+                searchKey: ''
+            }
+        },
         customerFields: [{
             key: 'edit',
             label: 'Action'
@@ -951,8 +961,14 @@
         },
         getData(ctx, callback, type) {
           this.isBusy = true;
-          console.log("Loading..."+ type);
-          axios.get('/list?table=' + type)
+          var searchForm = this.searchForm[type];
+          var viewId = '_all_docs';
+          if(searchForm){
+            viewId = searchForm.viewId;
+          }
+          var url = '/list?table=' + type + '&viewId='+viewId;
+          console.log("Loading getData..."+ url);
+          axios.get(url)
             .then((response) => {
               this.isBusy = false;
               console.log(response);
@@ -966,8 +982,8 @@
             });
         },
         getDataSelect(type) {
-          console.log("Loading Select..."+ type);
-          axios.get('/list?table=' + type)
+          console.log("Loading Select..."+ type );
+          axios.get('/list?table=' + type + '&viewId=_all_docs')
             .then((response) => {
               if(type == 'Customer'){
                 this.customerDataList = response.data;

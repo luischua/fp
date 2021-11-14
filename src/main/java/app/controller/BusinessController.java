@@ -189,27 +189,24 @@ public class BusinessController {
     @GetMapping("/list")
     public List list(HttpServletRequest request) {
         String table = request.getParameter(TABLE_KEY);
-        String tableProperties = table.concat(".properties");
         String page = request.getParameter(PAGE_KEY);
         String rowsString = request.getParameter(ROWS_KEY);
-        int rows = 100;
-        if(rowsString != null){
-            rows = Integer.parseInt(rowsString);
-        }
         String tableClass = "business.".concat(table);
         List documentList = null;
         Class clz;
         try{
             clz = Class.forName(tableClass);
             CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
-            if(table.equals("Order")){
-                documentList = dbClient.view("Order/byLastEdited")
-                        .includeDocs(true)
-                        .descending(true)
-                        .query(clz);
-            }else {
-                documentList = dbClient.view("_all_docs").queryPage(rows, page, clz).getResultList();
+            String viewId = request.getParameter("viewId");
+            int rows = 100;
+            if(rowsString != null){
+                rows = Integer.parseInt(rowsString);
             }
+            documentList = dbClient.view(viewId)
+                    .includeDocs(true)
+                    .descending(true)
+                    .queryPage(rows, page, clz)
+                    .getResultList();
         }catch (Exception e){
             e.printStackTrace();
         }
