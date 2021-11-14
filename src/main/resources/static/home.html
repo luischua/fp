@@ -541,6 +541,33 @@
                         </template>
                     </b-table>
                 </b-tab>
+                <b-tab title="Monthly Sales Report">
+                    <b-button @click="refresh('monthlySalesTable')">Refresh Table</b-button>
+                    <b-table  ref="monthlySalesTable" bordered striped hover sticky-header="600px" :items="monthlySalesList" :fields="monthlySalesFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
+                                Info modal
+                            </b-button>
+                            <b-button size="sm" @click="row.toggleDetails">
+                                {{ row.detailsShowing ? 'Hide' : 'Show' }} Product Quantity Breakdown
+                            </b-button>
+                        </template>
+                        <template #row-details="row">
+                            <b-card>
+                                <b-table  ref="monthlySalesTable" bordered striped hover sticky-header="600px" :items="row.item.orderedProductSales" :fields="monthlySalesProductListFields"
+                                          :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                                </b-table>
+                            </b-card>
+                        </template>
+                    </b-table>
+                </b-tab>
             </b-tabs>
 
     </div>
@@ -816,6 +843,28 @@
             label: 'Tel Number'
           }
         ],
+        monthlySalesFields: [{
+            key: 'edit',
+            label: 'Action'
+          },
+          {
+            key: 'yearMonth',
+            sortable: true
+          },
+          {
+            key: 'totalOrder'
+          },
+          {
+            key: 'totalValue',
+          }
+        ],
+        monthlySalesProductListFields: [{
+            key: 'name'
+          },
+          {
+            key: 'quantity',
+          }
+        ],
         orderFields: [{
             key: 'edit',
             label: 'Action'
@@ -965,6 +1014,9 @@
         },
         truckingList(ctx, callback) {
           this.getData(ctx, callback, 'Trucking');
+        },
+        monthlySalesList(ctx, callback) {
+          this.getData(ctx, callback, 'MonthlySales');
         },
         orderList(ctx, callback) {
           this.getData(ctx, callback, 'Order');

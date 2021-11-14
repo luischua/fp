@@ -9,6 +9,7 @@ import org.lightcouch.CouchDbClient;
 import org.lightcouch.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.core.io.Resource;
 import util.BusinessUtil;
 import util.CouchDBUtil;
 
@@ -217,9 +217,9 @@ public class BusinessController {
     }
 
     @GetMapping("/monthlySales")
-    public void computeMonthlySales(){
+    public void computeMonthlySales(int year, int month){
         CouchDbClient dbClient = CouchDBUtil.getDbClient(Order.class);
-        int yearMonth = 202111;
+        int yearMonth = year * 100 + month;
         List<Order> documentList = dbClient.view("Order/byYearMonth")
                 .key(yearMonth)
                 .limit(10000)
@@ -227,6 +227,7 @@ public class BusinessController {
                 .query(Order.class);
         CouchDbClient dbClient2 = CouchDBUtil.getDbClient(MonthlySales.class);
         MonthlySales sales = new MonthlySales();
+        sales.setYearMonth(yearMonth);
         sales.computeSales(documentList);
         dbClient2.save(sales);
     }
