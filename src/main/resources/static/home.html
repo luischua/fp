@@ -32,83 +32,7 @@
             Save Successful. Alert will dismiss after {{ dismissCountDown }} seconds...
         </b-alert>
             <b-tabs pills card vertical>
-                <b-tab title="Customer" active>
-                    <b-button @click="newFormGeneric(customerForm, defaultCustomerValues, 'bv-modal-customer')">New</b-button>
-                    <b-button @click="refresh('customerTable')">Refresh Table</b-button>
-                    <b-modal ref="bv-modal-customer" hide-footer>
-                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
-                        <b-alert variant="danger" :show="showErrorDetail">
-                            <div>System Error</div>
-                            <b-button :pressed.sync="showStackTrace" variant="primary">
-                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
-                            </b-button>
-                            <b-card v-if="showStackTrace">
-                                {{ errorDetailMessage }}
-                            </b-card>
-                        </b-alert>
-                        <b-form @submit="onSubmit($event, customerForm, 'bv-modal-customer')">
-                            <b-form-group label="Name:">
-                                <b-form-input v-model="customerForm.name"/>
-                            </b-form-group>
-                            <b-form-group label="Address:">
-                                <b-form-input v-model="customerForm.address"/>
-                            </b-form-group>
-                            <b-form-group label="Contact:">
-                                <b-form-input v-model="customerForm.contact"/>
-                            </b-form-group>
-                            <b-form-group label="Tel:">
-                                <b-form-input v-model="customerForm.telephone"/>
-                            </b-form-group>
-                            <b-form-group label="Terms:">
-                                <b-form-input v-model="customerForm.terms"/>
-                            </b-form-group>
-                            <b-form-group label="Agent:">
-                                <b-form-input v-model="customerForm.agentName" list="agentSelect"></b-form-input>
-                            </b-form-group>
-                            <b-form-group label="Trucking:">
-                                <b-form-input v-model="customerForm.truckingName" list="truckingSelect"></b-form-input>
-                            </b-form-group>
-                            <b-button type="submit" variant="primary">Submit</b-button>
-                            <b-form-input v-model="customerForm.table" value="Customer" style="display:none;"/>
-                            <b-form-input v-model="customerForm.id" style="display:none;"/>
-                            <b-form-input v-model="customerForm.revision" style="display:none;"/>
-                        </b-form>
-                    </b-modal>
-                    <b-table  ref="customerTable" bordered striped hover sticky-header="600px" :items="customerList" :fields="customerFields"
-                             :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
-                        <template #table-busy>
-                            <div class="text-center text-danger my-2">
-                                <b-spinner class="align-middle"></b-spinner>
-                                <strong>Loading...</strong>
-                            </div>
-                        </template>
-                        <template #cell(edit)="row">
-                            <b>{{ row.index + 1 }}</b>
-                            <b-button size="sm" @click="edit(row.item, customerForm, 'bv-modal-customer')" class="mr-1">
-                                Edit
-                            </b-button>
-                            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
-                                Info modal
-                            </b-button>
-                        </template>
-                        <template #cell(name)="data">
-                            {{ data.value }}
-                        </template>
-                        <template #cell(address)="data">
-                            {{ data.value }}
-                        </template>
-                        <template #cell(telephone)="data">
-                            {{ data.value }}
-                        </template>
-                        <template #cell(contact)="data">
-                            {{ data.value }}
-                        </template>
-                        <template #cell(terms)="data">
-                            {{ data.value }}
-                        </template>
-                    </b-table>
-                </b-tab>
-                <b-tab title="Order">
+                <b-tab title="Order" active>
                     <b-button @click="newFormGeneric(orderForm, defaultOrderValues, 'bv-modal-order')">New</b-button>
                     <b-button @click="refresh('orderTable')">Refresh Table</b-button>
                     <b-modal ref="bv-modal-order" hide-footer>
@@ -238,110 +162,6 @@
                         </template>
                     </b-table>
                 </b-tab>
-                <b-tab title="Counter">
-                    <b-button @click="newFormGeneric(counterForm, defaultCounterValues, 'bv-modal-counter')">New</b-button>
-                    <b-button @click="refresh('counterTable')">Refresh Table</b-button>
-                    <b-modal ref="bv-modal-counter" hide-footer>
-                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
-                        <b-alert variant="danger" :show="showErrorDetail">
-                            <div>System Error</div>
-                            <b-button :pressed.sync="showStackTrace" variant="primary">
-                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
-                            </b-button>
-                            <b-card v-if="showStackTrace">
-                                {{ errorDetailMessage }}
-                            </b-card>
-                        </b-alert>
-                        <b-form @submit="onSubmit($event, counterForm, 'bv-modal-counter')">
-                            <b-form-group label="Name:">
-                                <b-form-input v-model="counterForm.name"/>
-                            </b-form-group>
-                            <b-form-group label="Current Value:">
-                                <b-form-input v-model="counterForm.value"/>
-                            </b-form-group>
-                            <b-button type="submit" variant="primary">Submit</b-button>
-                        </b-form>
-                    </b-modal>
-                    <b-table  ref="counterTable" bordered striped hover sticky-header="600px" :items="counterList" :fields="counterFields"
-                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
-                        <template #table-busy>
-                            <div class="text-center text-danger my-2">
-                                <b-spinner class="align-middle"></b-spinner>
-                                <strong>Loading...</strong>
-                            </div>
-                        </template>
-                        <template #cell(edit)="row">
-                            <b>{{ row.index + 1 }}</b>
-                            <b-button size="sm" @click="edit(row.item, counterForm, 'bv-modal-counter')" class="mr-1">
-                                Edit
-                            </b-button>
-                        </template>
-                        <template #cell(name)="data">
-                            {{ data.value }}
-                        </template>
-                        <template #cell(value)="data">
-                            {{ data.value }}
-                        </template>
-                    </b-table>
-                </b-tab>
-                <b-tab title="Product">
-                    <b-button @click="newFormGeneric(productForm, defaultProductValues, 'bv-modal-product')">New</b-button>
-                    <b-button @click="refresh('productTable')">Refresh Table</b-button>
-                    <b-modal ref="bv-modal-product" hide-footer>
-                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
-                        <b-alert variant="danger" :show="showErrorDetail">
-                            <div>System Error</div>
-                            <b-button :pressed.sync="showStackTrace" variant="primary">
-                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
-                            </b-button>
-                            <b-card v-if="showStackTrace">
-                                {{ errorDetailMessage }}
-                            </b-card>
-                        </b-alert>
-                        <b-form @submit="onSubmit($event, productForm, 'bv-modal-product')">
-                            <b-form-group label="Name:">
-                                <b-form-input v-model="productForm.name"/>
-                            </b-form-group>
-                            <b-form-group label="Category:">
-                                <b-form-input v-model="productForm.categoryName" list="categorySelect"></b-form-input>
-                            </b-form-group>
-                            <b-form-group label="Price:">
-                                <b-form-input v-model="productForm.price"/>
-                            </b-form-group>
-                            <b-form-group label="Default Discount:">
-                                <b-form-input v-model="productForm.defaultDiscount"/>
-                            </b-form-group>
-                            <b-form-group label="Display Ordering (ex. a1,a2,b1,b2):">
-                                <b-form-input v-model="productForm.displayOrdering"/>
-                            </b-form-group>
-                            <b-button type="submit" variant="primary">Submit</b-button>
-                        </b-form>
-                    </b-modal>
-                    <b-table  ref="productTable" bordered striped hover sticky-header="600px" :items="productList" :fields="productFields"
-                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
-                        <template #table-busy>
-                            <div class="text-center text-danger my-2">
-                                <b-spinner class="align-middle"></b-spinner>
-                                <strong>Loading...</strong>
-                            </div>
-                        </template>
-                        <template #cell(edit)="row">
-                            <b>{{ row.index + 1 }}</b>
-                            <b-button size="sm" @click="edit(row.item, productForm, 'bv-modal-product')" class="mr-1">
-                                Edit
-                            </b-button>
-                        </template>
-                        <template #cell(name)="data">
-                            {{ data.value }}
-                        </template>
-                        <template #cell(price)="data">
-                            {{ data.value }}
-                        </template>
-                        <template #cell(defaultDiscount)="data">
-                            {{ data.value }}
-                        </template>
-                    </b-table>
-                </b-tab>
                 <b-tab title="Payment">
                     <b-button @click="newFormGeneric(paymentForm, defaultPaymentValues, 'bv-modal-payment')">New</b-button>
                     <b-button @click="refresh('paymentTable')">Refresh Table</b-button>
@@ -409,6 +229,140 @@
                         </template>
                     </b-table>
                 </b-tab>
+                <b-tab title="Customer">
+                    <b-button @click="newFormGeneric(customerForm, defaultCustomerValues, 'bv-modal-customer')">New</b-button>
+                    <b-button @click="refresh('customerTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-customer" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, customerForm, 'bv-modal-customer')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="customerForm.name"/>
+                            </b-form-group>
+                            <b-form-group label="Address:">
+                                <b-form-input v-model="customerForm.address"/>
+                            </b-form-group>
+                            <b-form-group label="Contact:">
+                                <b-form-input v-model="customerForm.contact"/>
+                            </b-form-group>
+                            <b-form-group label="Tel:">
+                                <b-form-input v-model="customerForm.telephone"/>
+                            </b-form-group>
+                            <b-form-group label="Terms:">
+                                <b-form-input v-model="customerForm.terms"/>
+                            </b-form-group>
+                            <b-form-group label="Agent:">
+                                <b-form-input v-model="customerForm.agentName" list="agentSelect"></b-form-input>
+                            </b-form-group>
+                            <b-form-group label="Trucking:">
+                                <b-form-input v-model="customerForm.truckingName" list="truckingSelect"></b-form-input>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                            <b-form-input v-model="customerForm.table" value="Customer" style="display:none;"/>
+                            <b-form-input v-model="customerForm.id" style="display:none;"/>
+                            <b-form-input v-model="customerForm.revision" style="display:none;"/>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="customerTable" bordered striped hover sticky-header="600px" :items="customerList" :fields="customerFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, customerForm, 'bv-modal-customer')" class="mr-1">
+                                Edit
+                            </b-button>
+                            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
+                                Info modal
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(address)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(telephone)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(contact)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(terms)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
+                <b-tab title="Product">
+                    <b-button @click="newFormGeneric(productForm, defaultProductValues, 'bv-modal-product')">New</b-button>
+                    <b-button @click="refresh('productTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-product" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, productForm, 'bv-modal-product')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="productForm.name"/>
+                            </b-form-group>
+                            <b-form-group label="Category:">
+                                <b-form-input v-model="productForm.categoryName" list="categorySelect"></b-form-input>
+                            </b-form-group>
+                            <b-form-group label="Price:">
+                                <b-form-input v-model="productForm.price"/>
+                            </b-form-group>
+                            <b-form-group label="Default Discount:">
+                                <b-form-input v-model="productForm.defaultDiscount"/>
+                            </b-form-group>
+                            <b-form-group label="Display Ordering (ex. a1,a2,b1,b2):">
+                                <b-form-input v-model="productForm.displayOrdering"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="productTable" bordered striped hover sticky-header="600px" :items="productList" :fields="productFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, productForm, 'bv-modal-product')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(price)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(defaultDiscount)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
                 <b-tab title="Agent">
                     <b-button @click="newFormGeneric(agentForm, defaultAgentValues, 'bv-modal-agent')">New</b-button>
                     <b-button @click="refresh('agentTable')">Refresh Table</b-button>
@@ -447,46 +401,6 @@
                         <template #cell(edit)="row">
                             <b>{{ row.index + 1 }}</b>
                             <b-button size="sm" @click="edit(row.item, agentForm, 'bv-modal-agent')" class="mr-1">
-                                Edit
-                            </b-button>
-                        </template>
-                        <template #cell(name)="data">
-                            {{ data.value }}
-                        </template>
-                    </b-table>
-                </b-tab>
-                <b-tab title="Category">
-                    <b-button @click="newFormGeneric(categoryForm, defaultCategoryValues, 'bv-modal-category')">New</b-button>
-                    <b-button @click="refresh('categoryTable')">Refresh Table</b-button>
-                    <b-modal ref="bv-modal-category" hide-footer>
-                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
-                        <b-alert variant="danger" :show="showErrorDetail">
-                            <div>System Error</div>
-                            <b-button :pressed.sync="showStackTrace" variant="primary">
-                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
-                            </b-button>
-                            <b-card v-if="showStackTrace">
-                                {{ errorDetailMessage }}
-                            </b-card>
-                        </b-alert>
-                        <b-form @submit="onSubmit($event, categoryForm, 'bv-modal-category')">
-                            <b-form-group label="Name:">
-                                <b-form-input v-model="categoryForm.name"/>
-                            </b-form-group>
-                            <b-button type="submit" variant="primary">Submit</b-button>
-                        </b-form>
-                    </b-modal>
-                    <b-table  ref="categoryTable" bordered striped hover sticky-header="600px" :items="categoryList" :fields="categoryFields"
-                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
-                        <template #table-busy>
-                            <div class="text-center text-danger my-2">
-                                <b-spinner class="align-middle"></b-spinner>
-                                <strong>Loading...</strong>
-                            </div>
-                        </template>
-                        <template #cell(edit)="row">
-                            <b>{{ row.index + 1 }}</b>
-                            <b-button size="sm" @click="edit(row.item, categoryForm, 'bv-modal-category')" class="mr-1">
                                 Edit
                             </b-button>
                         </template>
@@ -537,6 +451,92 @@
                             </b-button>
                         </template>
                         <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
+                <b-tab title="Category">
+                    <b-button @click="newFormGeneric(categoryForm, defaultCategoryValues, 'bv-modal-category')">New</b-button>
+                    <b-button @click="refresh('categoryTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-category" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, categoryForm, 'bv-modal-category')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="categoryForm.name"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="categoryTable" bordered striped hover sticky-header="600px" :items="categoryList" :fields="categoryFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, categoryForm, 'bv-modal-category')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                    </b-table>
+                </b-tab>
+                <b-tab title="Counter">
+                    <b-button @click="newFormGeneric(counterForm, defaultCounterValues, 'bv-modal-counter')">New</b-button>
+                    <b-button @click="refresh('counterTable')">Refresh Table</b-button>
+                    <b-modal ref="bv-modal-counter" hide-footer>
+                        <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
+                        <b-alert variant="danger" :show="showErrorDetail">
+                            <div>System Error</div>
+                            <b-button :pressed.sync="showStackTrace" variant="primary">
+                                {{ showStackTrace ? 'Hide' : 'Show' }} Error Details
+                            </b-button>
+                            <b-card v-if="showStackTrace">
+                                {{ errorDetailMessage }}
+                            </b-card>
+                        </b-alert>
+                        <b-form @submit="onSubmit($event, counterForm, 'bv-modal-counter')">
+                            <b-form-group label="Name:">
+                                <b-form-input v-model="counterForm.name"/>
+                            </b-form-group>
+                            <b-form-group label="Current Value:">
+                                <b-form-input v-model="counterForm.value"/>
+                            </b-form-group>
+                            <b-button type="submit" variant="primary">Submit</b-button>
+                        </b-form>
+                    </b-modal>
+                    <b-table  ref="counterTable" bordered striped hover sticky-header="600px" :items="counterList" :fields="counterFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(edit)="row">
+                            <b>{{ row.index + 1 }}</b>
+                            <b-button size="sm" @click="edit(row.item, counterForm, 'bv-modal-counter')" class="mr-1">
+                                Edit
+                            </b-button>
+                        </template>
+                        <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(value)="data">
                             {{ data.value }}
                         </template>
                     </b-table>
