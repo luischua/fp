@@ -46,12 +46,15 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, orderForm, 'bv-modal-order')">
+                        <b-form @submit="onSubmit($event, orderForm, 'bv-modal-order', 'orderTable')">
                             <b-form-group label="Customer:">
                                 <b-form-input v-model="orderForm.customerName" list="customerSelect"></b-form-input>
                             </b-form-group>
-                            <b-form-group label="Order Date:">
+                            <b-form-group label="Delivered Date:">
                                 <b-calendar v-model="orderForm.deliveredDate" locale="en-US"></b-calendar>
+                            </b-form-group>
+                            <b-form-group label="Canceled Date:">
+                                <b-calendar v-model="orderForm.canceledDate" locale="en-US"></b-calendar>
                             </b-form-group>
                             <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
@@ -69,15 +72,18 @@
                             <b-button size="sm" @click="edit(row.item, orderForm, 'bv-modal-order')" class="mr-1">
                                 Edit
                             </b-button>
-                            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
-                                Info modal
-                            </b-button>
                             <b-button size="sm" @click="row.toggleDetails">
                                 {{ row.detailsShowing ? 'Hide' : 'Show' }} Order Details
+                            </b-button>
+                            <br/>
+                            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
+                                Info modal
                             </b-button>
                             <b-button size="sm" @click="download(row.item.id)" class="mr-1">
                                 Download XLS
                             </b-button>
+                            <br/>
+                            Last Edited: {{row.item.lastEditedString}}
                         </template>
                         <template #cell(receiptNo)="data">
                             {{ data.value }}
@@ -119,6 +125,7 @@
                                     >Promo</b-form-checkbox>
                                     <b-button type="submit" variant="primary">Add</b-button>
                                 </b-form>
+                                <h4>Product</h4>
                                 <b-table  ref="orderDetailProductTable" bordered striped hover sticky-header="600px" :items="row.item.products" :fields="orderDetailProductFields"
                                           :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                                     <template #table-busy>
@@ -143,6 +150,7 @@
                                         {{ data.value }}
                                     </template>
                                 </b-table>
+                                <h4>Promo</h4>
                                 <b-table  ref="orderDetailPromoTable" bordered striped hover sticky-header="600px" :items="row.item.promo" :fields="orderDetailPromoFields"
                                           :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                                     <template #table-busy>
@@ -155,6 +163,22 @@
                                         {{ data.value }}
                                     </template>
                                     <template #cell(name)="data">
+                                        {{ data.value }}
+                                    </template>
+                                </b-table>
+                                <h4>Payments</h4>
+                                <b-table  ref="orderDetailPaymentTable" bordered striped hover sticky-header="600px" :items="row.item.allPayments" :fields="orderDetailPaymentFields"
+                                          :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                                    <template #table-busy>
+                                        <div class="text-center text-danger my-2">
+                                            <b-spinner class="align-middle"></b-spinner>
+                                            <strong>Loading...</strong>
+                                        </div>
+                                    </template>
+                                    <template #cell(paymentNo)="data">
+                                        {{ data.value }}
+                                    </template>
+                                    <template #cell(value)="data">
                                         {{ data.value }}
                                     </template>
                                 </b-table>
@@ -176,7 +200,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, paymentForm, 'bv-modal-payment')">
+                        <b-form @submit="onSubmit($event, paymentForm, 'bv-modal-payment', 'paymentTable')">
                             <b-form-group label="Type:">
                                 <b-form-radio-group
                                         v-model="paymentForm.type"
@@ -243,7 +267,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, customerForm, 'bv-modal-customer')">
+                        <b-form @submit="onSubmit($event, customerForm, 'bv-modal-customer', 'customerTable')">
                             <b-form-group label="Name:">
                                 <b-form-input v-model="customerForm.name"/>
                             </b-form-group>
@@ -319,7 +343,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, productForm, 'bv-modal-product')">
+                        <b-form @submit="onSubmit($event, productForm, 'bv-modal-product', 'productTable')">
                             <b-form-group label="Name:">
                                 <b-form-input v-model="productForm.name"/>
                             </b-form-group>
@@ -377,7 +401,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, agentForm, 'bv-modal-agent')">
+                        <b-form @submit="onSubmit($event, agentForm, 'bv-modal-agent', 'agentTable')">
                             <b-form-group label="Name:">
                                 <b-form-input v-model="agentForm.name"/>
                             </b-form-group>
@@ -423,7 +447,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, truckingForm, 'bv-modal-trucking')">
+                        <b-form @submit="onSubmit($event, truckingForm, 'bv-modal-trucking', 'truckingTable')">
                             <b-form-group label="Name:">
                                 <b-form-input v-model="truckingForm.name"/>
                             </b-form-group>
@@ -469,7 +493,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, categoryForm, 'bv-modal-category')">
+                        <b-form @submit="onSubmit($event, categoryForm, 'bv-modal-category', 'categoryTable')">
                             <b-form-group label="Name:">
                                 <b-form-input v-model="categoryForm.name"/>
                             </b-form-group>
@@ -509,7 +533,7 @@
                                 {{ errorDetailMessage }}
                             </b-card>
                         </b-alert>
-                        <b-form @submit="onSubmit($event, counterForm, 'bv-modal-counter')">
+                        <b-form @submit="onSubmit($event, counterForm, 'bv-modal-counter', 'counterTable')">
                             <b-form-group label="Name:">
                                 <b-form-input v-model="counterForm.name"/>
                             </b-form-group>
@@ -712,11 +736,13 @@
         },
         defaultOrderValues: {
           customerName: '',
-          deliveredDate: ''
+          deliveredDate: '',
+          canceledDate: ''
         },
         orderForm: {
           customerName: '',
           deliveredDate: '',
+          canceledDate: '',
           table: 'Order',
           id: '',
           revision: ''
@@ -883,14 +909,28 @@
             key: 'receiptNo'
           },
           {
-            key: 'customerName',
-            sortable: true
+            key: 'customerName'
           },
           {
-            key: 'deliveredDate'
+            key: 'deliveredDateString'
           },
           {
             key: 'total'
+          },
+          {
+            key: 'collectionDateString'
+          },
+          {
+            key: 'totalPayments'
+          },
+          {
+            key: 'paidDateString'
+          },
+          {
+            key: 'daysFromDeliveredToPaid'
+          },
+          {
+            key: 'canceledDateString'
           }
         ],
         orderDetailProductFields: [
@@ -918,6 +958,14 @@
           {
             key: 'name',
             sortable: true
+          }
+        ],
+        orderDetailPaymentFields: [
+          {
+            key: 'paymentNo',
+          },
+          {
+            key: 'value'
           }
         ]
       },
@@ -1056,7 +1104,7 @@
           submitForm.revision = item.revision;
           this.onSubmit(event, submitForm, null);
         },
-        onSubmit(event, submitForm, refId) {
+        onSubmit(event, submitForm, refId, tableId) {
           event.preventDefault();
           console.log('Submit');
           console.log(submitForm);
@@ -1093,8 +1141,7 @@
                   console.log("ID:" + id);
                   if (!id || id.length == 0) {
                     console.log('push to table');
-                    //this.$refs.customerTable.items.push(response.data.result);
-                    //this.refresh('customerTable');
+                    this.refresh(tableId);
                   } else {
                     console.log('write to vue table');
                     Object.assign(this.selectedItem, response.data.result);

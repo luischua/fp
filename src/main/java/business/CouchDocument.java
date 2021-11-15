@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Document;
+import util.BusinessUtil;
 import util.CouchDBUtil;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,10 @@ public class CouchDocument extends Document {
 
     private String narrative = "";
     private LocalDateTime lastEdited;
+
+    public String getLastEditedString(){
+        return BusinessUtil.getDateTimeString(lastEdited);
+    }
 
     public void addNarrative(String s){
         narrative = narrative.concat(s);

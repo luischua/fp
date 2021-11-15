@@ -4,10 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.lightcouch.CouchDbClient;
+import util.BusinessUtil;
 import util.CouchDBUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,36 @@ public class Order extends CouchDocument {
     Map<String, OrderPayment> payments;
     private OrderPeriod period;
     private boolean paymentExceeded;
+
+    public Collection<OrderPayment> getAllPayments(){
+        if(payments != null) {
+            return payments.values();
+        }
+        return null;
+    }
+
+    public String getDeliveredDateString(){
+        return BusinessUtil.getDateString(deliveredDate);
+    }
+
+    public String getCanceledDateString(){
+        return BusinessUtil.getDateString(canceledDate);
+    }
+
+    public String getPaidDateString(){
+        return BusinessUtil.getDateString(paidDate);
+    }
+
+    public String getCollectionDateString(){
+        return BusinessUtil.getDateString(getCollectionDate());
+    }
+
+    public Long getDaysFromDeliveredToPaid(){
+        if(deliveredDate != null && paidDate != null){
+            return ChronoUnit.DAYS.between(deliveredDate, paidDate);
+        }
+        return null;
+    }
 
     public void addPayments(String paymentId, OrderPayment p){
         if(payments == null){
