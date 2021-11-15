@@ -35,6 +35,14 @@
                 <b-tab title="Order" active>
                     <b-button @click="newFormGeneric(orderForm, defaultOrderValues, 'bv-modal-order')">New</b-button>
                     <b-button @click="refresh('orderTable')">Refresh Table</b-button>
+                    <b-form-input v-model="searchForm['Order'].customer" list="customerSelect"></b-form-input>
+                    <b-button @click="filterCustomer">Filter by Customer</b-button>
+                    <b-form-input v-model="searchForm['Order'].receiptNo"></b-form-input>
+                    <b-button @click="filterReceiptNo">Filter by ReceiptNo</b-button>
+                    <b-button @click="showPendingOrder">Show Pending Deliveries</b-button>
+                    <b-button @click="showDueOrder">Show Due Orders</b-button>
+                    <b-button @click="showLastEditedOrder">Last Edited</b-button>
+                    Filter by : {{searchForm['Order'].viewId}}
                     <b-modal ref="bv-modal-order" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
                         <b-alert variant="danger" :show="showErrorDetail">
@@ -764,11 +772,10 @@
         searchForm: {
             Order: {
                 viewId: 'Order/byLastEdited',
-                searchKey: ''
-            },
-            Customer: {
-                viewId: '_all_docs',
-                searchKey: ''
+                includeKey: false,
+                key: '',
+                receiptNo: '',
+                customer: ''
             }
         },
         customerFields: [{
@@ -1011,10 +1018,14 @@
           this.isBusy = true;
           var searchForm = this.searchForm[type];
           var viewId = '_all_docs';
+          var key = '';
           if(searchForm){
             viewId = searchForm.viewId;
+            if(searchForm.includeKey){
+                key = searchForm.key;
+            }
           }
-          var url = '/list?table=' + type + '&viewId='+viewId;
+          var url = '/list?table=' + type + '&viewId='+viewId+ '&key='+key;
           console.log("Loading getData..."+ url);
           axios.get(url)
             .then((response) => {
@@ -1084,6 +1095,33 @@
         },
         orderList(ctx, callback) {
           this.getData(ctx, callback, 'Order');
+        },
+        filterReceiptNo(){
+            this.searchForm['Order'].viewId = 'Order/byReceiptNo';
+            this.searchForm['Order'].includeKey = true;
+            this.searchForm['Order'].key = this.searchForm['Order'].receiptNo
+            this.refresh('orderTable');
+        },
+        filterCustomer(){
+            this.searchForm['Order'].viewId = 'Order/byCustomerId';
+            this.searchForm['Order'].includeKey = true;
+            this.searchForm['Order'].key = this.searchForm['Order'].customer
+            this.refresh('orderTable');
+        },
+        showPendingOrder(){
+            this.searchForm['Order'].viewId = 'Order/byPendingOrder';
+            this.searchForm['Order'].includeKey = false;
+            this.refresh('orderTable');
+        },
+        showDueOrder(){
+            this.searchForm['Order'].viewId = 'Order/byDueOrder';
+            this.searchForm['Order'].includeKey = false;
+            this.refresh('orderTable');
+        },
+        showLastEditedOrder(){
+            this.searchForm['Order'].viewId = 'Order/byLastEdited';
+            this.searchForm['Order'].includeKey = false;
+            this.refresh('orderTable');
         },
         info(item, index, button) {
             this.infoModal.title = `Row index: ${index}`

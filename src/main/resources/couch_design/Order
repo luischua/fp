@@ -13,6 +13,12 @@
     },
     "byYearMonth": {
       "map": "function (doc) {\n  if(doc.canceledDate == null){\n    emit(doc.period.yearMonth, 1);\n  }\n}"
+    },
+    "byPendingOrder": {
+      "map": "function (doc) {\n  if(doc.deliveredDate == null && doc.canceledDate == null){\n    emit(doc.receiptNo, 1);\n  }\n}"
+    },
+    "byDueOrder": {
+      "map": "function (doc) {\n  emit(doc.collectionDate, 1);\n}"
     }
   },
   "language": "javascript"
