@@ -211,6 +211,11 @@ public class BusinessController {
                     v = v.key(key);
                 }
             }
+            if("Order/byDueOrder".equals(viewId)){
+                v = v.descending(false).endKey(LocalDate.now());
+            }
+
+
             int rows = 100;
             if(rowsString != null){
                 rows = Integer.parseInt(rowsString);

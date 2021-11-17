@@ -24,6 +24,7 @@ public class Order extends CouchDocument {
     private int terms;
     private LocalDate deliveredDate;
     private LocalDate canceledDate;
+    private LocalDate collectionDate;
     private LocalDate paidDate;
     List<ProductRecord> products;
     List<ProductRecord> promo;
@@ -93,10 +94,12 @@ public class Order extends CouchDocument {
     }
 
     public LocalDate getCollectionDate(){
-        if(deliveredDate != null && terms != 0) {
-            return deliveredDate.plusDays(terms);
+        if(deliveredDate != null) {
+            collectionDate = deliveredDate.plusDays(terms);
+        } else {
+            collectionDate = null;
         }
-        return null;
+        return collectionDate;
     }
 
     public void addProductRecord(Product p, int quantity) {
@@ -165,6 +168,8 @@ public class Order extends CouchDocument {
             customerId = c.getId();
             terms = c.getTerms();
         }
+        //refresh computed collectionDate value
+        getCollectionDate();
     }
 
     public void afterSave(){

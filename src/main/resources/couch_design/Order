@@ -18,7 +18,7 @@
       "map": "function (doc) {\n  if(doc.deliveredDate == null && doc.canceledDate == null){\n    emit(doc.receiptNo, 1);\n  }\n}"
     },
     "byDueOrder": {
-      "map": "function (doc) {\n  emit(doc.collectionDate, 1);\n}"
+      "map": "function (doc) {\n  if(doc.collectionDate != null && doc.paidDate == null && doc.canceledDate == null){\n    emit(doc.collectionDate, 1);\n  }\n}"
     }
   },
   "language": "javascript"
