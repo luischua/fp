@@ -13,19 +13,19 @@
             <pre>{{ infoModal.content }}</pre>
         </b-modal>
         <datalist id="customerSelect">
-            <option v-for="c in customerDataList">{{c.name}}</option>
+            <option v-for="[key, value] in customerDataList">{{key}}</option>
         </datalist>
         <datalist id="productSelect">
-            <option v-for="c in productDataList">{{c.name}}</option>
+            <option v-for="[key, value] in productDataList">{{key}}</option>
         </datalist>
         <datalist id="agentSelect">
-            <option v-for="c in agentDataList">{{c.name}}</option>
+            <option v-for="[key, value] in agentDataList">{{key}}</option>
         </datalist>
         <datalist id="truckingSelect">
-            <option v-for="c in truckingDataList">{{c.name}}</option>
+            <option v-for="[key, value] in truckingDataList">{{key}}</option>
         </datalist>
         <datalist id="categorySelect">
-            <option v-for="c in categoryDataList">{{c.name}}</option>
+            <option v-for="[key, value] in categoryDataList">{{key}}</option>
         </datalist>
 
         <b-alert :show="dismissCountDown" dismissible fade variant="success" @dismiss-count-down="countDownChanged">
@@ -1040,28 +1040,37 @@
               callback([]);
             });
         },
+        convertToMap(data){
+            var map = new Map();
+            data.forEach(function (item) {
+                if(item.name){
+                    map.set(item.name, item.id);
+                }
+            });
+            return map;
+        },
         getDataSelect(type) {
           console.log("Loading Select..."+ type );
           axios.get('/list?table=' + type + '&viewId=_all_docs')
             .then((response) => {
               if(type == 'Customer'){
-                this.customerDataList = response.data;
+                this.customerDataList = this.convertToMap(response.data);
                 console.log(this.customerDataList);
               }
               else if(type == 'Product'){
-                this.productDataList = response.data;
+                this.productDataList = this.convertToMap(response.data);
                 console.log(this.productDataList);
               }
               else if(type == 'Agent'){
-                this.agentDataList = response.data;
+                this.agentDataList = this.convertToMap(response.data);
                 console.log(this.agentDataList);
               }
               else if(type == 'Trucking'){
-                this.truckingDataList = response.data;
+                this.truckingDataList = this.convertToMap(response.data);
                 console.log(this.truckingDataList);
               }
               else if(type == 'Category'){
-                this.categoryDataList = response.data;
+                this.categoryDataList = this.convertToMap(response.data);
                 console.log(this.categoryDataList);
               }
             })
@@ -1105,7 +1114,8 @@
         filterCustomer(){
             this.searchForm['Order'].viewId = 'Order/byCustomerId';
             this.searchForm['Order'].includeKey = true;
-            this.searchForm['Order'].key = this.searchForm['Order'].customer
+            var customerName = this.searchForm['Order'].customer;
+            this.searchForm['Order'].key = this.customerDataList.get(customerName);
             this.refresh('orderTable');
         },
         showPendingOrder(){
