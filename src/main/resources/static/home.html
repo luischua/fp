@@ -36,7 +36,7 @@
                     <b-button @click="newFormGeneric(orderForm, defaultOrderValues, 'bv-modal-order')">New</b-button>
                     <b-button @click="refresh('orderTable')">Refresh Table</b-button>
                     <b-form-input v-model="searchForm['Order'].customer" list="customerSelect"></b-form-input>
-                    <b-button @click="filterCustomer">Filter by Customer</b-button>
+                    <b-button @click="filterCustomerOrder">Filter by Customer</b-button>
                     <b-form-input v-model="searchForm['Order'].receiptNo"></b-form-input>
                     <b-button @click="filterReceiptNo">Filter by ReceiptNo</b-button>
                     <b-button @click="showPendingOrder">Show Pending Deliveries</b-button>
@@ -264,7 +264,12 @@
                 <b-tab title="Customer">
                     <b-button @click="newFormGeneric(customerForm, defaultCustomerValues, 'bv-modal-customer')">New</b-button>
                     <b-button @click="refresh('customerTable')">Refresh Table</b-button>
-                    <b-modal ref="bv-modal-customer" hide-footer>
+                    <b-form-input v-model="searchForm['Customer'].customer" list="customerSelect"></b-form-input>
+                    <b-button @click="filterCustomerName">Filter by Name</b-button>
+                    <b-button @click="showUncollected">Show Top Uncollected Amount</b-button>
+                    <b-button @click="showPaying">Show Top Paying Customers</b-button>
+                    Filter by : {{searchForm['Customer'].viewId}}
+                   <b-modal ref="bv-modal-customer" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
                         <b-alert variant="danger" :show="showErrorDetail">
                             <div>System Error</div>
@@ -319,6 +324,9 @@
                             <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
                                 Info modal
                             </b-button>
+                            <b-button size="sm" @click="row.toggleDetails">
+                                {{ row.detailsShowing ? 'Hide' : 'Show' }} Order Stats
+                            </b-button>
                         </template>
                         <template #cell(name)="data">
                             {{ data.value }}
@@ -334,6 +342,13 @@
                         </template>
                         <template #cell(terms)="data">
                             {{ data.value }}
+                        </template>
+                        <template #row-details="row">
+                            <b-card>
+                                <div v-for="(value, name, index) in row.item.orderStats">
+                                    {{ name }}: {{ value.count }} orders, Total Amount => {{ value.total }}, Receipts: {{ value.receiptNos }}
+                                </div>
+                            </b-card>
                         </template>
                     </b-table>
                 </b-tab>
@@ -776,6 +791,12 @@
                 key: '',
                 receiptNo: '',
                 customer: ''
+            },
+            Customer: {
+                viewId: '_all_docs',
+                includeKey: false,
+                key: '',
+                customer: ''
             }
         },
         customerFields: [{
@@ -796,6 +817,12 @@
           {
             key: 'telephone',
             label: 'Tel Number'
+          },
+          {
+            key: 'agentName'
+          },
+          {
+            key: 'truckingName'
           },
           {
             key: 'terms'
@@ -842,16 +869,31 @@
             label: 'Action'
           },
           {
-            key: 'checkNo',
-            sortable: true
+            key: 'paymentNo'
           },
           {
-            key: 'bank',
-            sortable: true
+            key: 'customerName'
           },
           {
-            key: 'value',
-            sortable: true
+            key: 'receiptNoList'
+          },
+          {
+            key: 'clearingDate'
+          },
+          {
+            key: 'bouncedDate'
+          },
+          {
+            key: 'type'
+          },
+          {
+            key: 'checkNo'
+          },
+          {
+            key: 'bank'
+          },
+          {
+            key: 'value'
           }
         ],
         agentFields: [{
@@ -1111,7 +1153,7 @@
             this.searchForm['Order'].key = this.searchForm['Order'].receiptNo
             this.refresh('orderTable');
         },
-        filterCustomer(){
+        filterCustomerOrder(){
             this.searchForm['Order'].viewId = 'Order/byCustomerId';
             this.searchForm['Order'].includeKey = true;
             var customerName = this.searchForm['Order'].customer;
@@ -1132,6 +1174,23 @@
             this.searchForm['Order'].viewId = 'Order/byLastEdited';
             this.searchForm['Order'].includeKey = false;
             this.refresh('orderTable');
+        },
+        filterCustomerName(){
+            this.searchForm['Customer'].viewId = 'Customer/byName';
+            this.searchForm['Customer'].includeKey = true;
+            var customerName = this.searchForm['Customer'].customer;
+            this.searchForm['Customer'].key = customerName;
+            this.refresh('customerTable');
+        },
+        showUncollected(){
+            this.searchForm['Customer'].viewId = 'Customer/byUncollected';
+            this.searchForm['Customer'].includeKey = false;
+            this.refresh('customerTable');
+        },
+        showPaying(){
+            this.searchForm['Customer'].viewId = 'Customer/byPaying';
+            this.searchForm['Customer'].includeKey = false;
+            this.refresh('customerTable');
         },
         info(item, index, button) {
             this.infoModal.title = `Row index: ${index}`

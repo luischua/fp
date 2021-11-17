@@ -1,0 +1,19 @@
+{
+  "_id": "_design/Customer",
+  "_rev": "6-8d67ac34320e83e311d4a2e7dceefe81",
+  "views": {
+    "byId": {
+      "map": "function (doc) {\n  emit(doc._id, 1);\n}"
+    },
+    "byName": {
+      "map": "function (doc) {\n  emit(doc.name, 1);\n}"
+    },
+    "byUncollected": {
+      "map": "function (doc) {\n  if(doc.orderStats.tobeCollected.count > 0){\n    emit(doc.orderStats.tobeCollected.total, 1);\n  }\n}"
+    },
+    "byPaying": {
+      "map": "function (doc) {\n  if(doc.orderStats.paid.count > 0){\n    emit(doc.orderStats.paid.total, 1);\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}
