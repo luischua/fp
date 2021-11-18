@@ -211,7 +211,7 @@ public class BusinessController {
                     v = v.key(key);
                 }
             }
-            if("Order/byDueOrder".equals(viewId)){
+            if("Order/byDueOrder".equals(viewId) || "Payment/byClearingDate".equals(viewId)){
                 v = v.descending(false).endKey(LocalDate.now());
             }
 

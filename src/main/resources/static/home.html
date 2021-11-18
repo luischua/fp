@@ -36,9 +36,9 @@
                     <b-button @click="newFormGeneric(orderForm, defaultOrderValues, 'bv-modal-order')">New</b-button>
                     <b-button @click="refresh('orderTable')">Refresh Table</b-button>
                     <b-form-input v-model="searchForm['Order'].customer" list="customerSelect"></b-form-input>
-                    <b-button @click="filterCustomerOrder">Filter by Customer</b-button>
+                    <b-button @click="filterCustomer('Order', 'orderTable', 'Order/byCustomerId', searchForm['Order'].customer)">Filter by Customer</b-button>
                     <b-form-input v-model="searchForm['Order'].receiptNo"></b-form-input>
-                    <b-button @click="filterReceiptNo">Filter by ReceiptNo</b-button>
+                    <b-button @click="filterByKey('Order', 'orderTable', 'Order/byReceiptNo', searchForm['Order'].receiptNo)">Filter by ReceiptNo</b-button>
                     <b-button @click="showGeneric('Order', 'orderTable', 'Order/byPendingOrder')">Show Pending Deliveries</b-button>
                     <b-button @click="showGeneric('Order', 'orderTable', 'Order/byDueOrder')">Show Due Orders</b-button>
                     <b-button @click="showLastEdited('Order', 'orderTable')">Last Edited</b-button>
@@ -197,6 +197,15 @@
                 <b-tab title="Payment">
                     <b-button @click="newFormGeneric(paymentForm, defaultPaymentValues, 'bv-modal-payment')">New</b-button>
                     <b-button @click="refresh('paymentTable')">Refresh Table</b-button>
+                    <b-form-input v-model="searchForm['Payment'].customer" list="customerSelect"></b-form-input>
+                    <b-button @click="filterCustomer('Payment', 'paymentTable', 'Payment/byCustomerId', searchForm['Payment'].customer)">Filter by Customer</b-button>
+                    <b-form-input v-model="searchForm['Payment'].number"></b-form-input>
+                    <b-button @click="filterByKey('Payment', 'paymentTable', 'Payment/byPaymentNo', searchForm['Payment'].number)">Filter by Payment No</b-button>
+                    <b-button @click="filterByKey('Payment', 'paymentTable', 'Payment/byCheckNo', searchForm['Payment'].number)">Filter by Check No</b-button>
+                    <b-button @click="showGeneric('Payment', 'paymentTable', 'Payment/byClearingDate')">Show Cleared Checks</b-button>
+                    <b-button @click="showGeneric('Payment', 'paymentTable', 'Payment/byBouncedDate')">Show Bounced Checks</b-button>
+                    <b-button @click="showLastEdited('Payment', 'paymentTable')">Last Edited</b-button>
+                    Filter by : {{searchForm['Payment'].viewId}}
                     <b-modal ref="bv-modal-payment" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
                         <b-alert variant="danger" :show="showErrorDetail">
@@ -233,6 +242,9 @@
                             <b-form-group label="Clearing Date:">
                                 <b-calendar v-model="paymentForm.clearingDate" locale="en-US"></b-calendar>
                             </b-form-group>
+                            <b-form-group label="Processed Date:">
+                                <b-calendar v-model="paymentForm.processedDate" locale="en-US"></b-calendar>
+                            </b-form-group>
                             <b-form-group label="Bounced Date:">
                                 <b-calendar v-model="paymentForm.bouncedDate" locale="en-US"></b-calendar>
                             </b-form-group>
@@ -265,7 +277,7 @@
                     <b-button @click="newFormGeneric(customerForm, defaultCustomerValues, 'bv-modal-customer')">New</b-button>
                     <b-button @click="refresh('customerTable')">Refresh Table</b-button>
                     <b-form-input v-model="searchForm['Customer'].customer" list="customerSelect"></b-form-input>
-                    <b-button @click="filterCustomerName">Filter by Name</b-button>
+                    <b-button @click="filterCustomer('Customer', 'customerTable', 'Customer/byId', searchForm['Customer'].customer)">Filter by Name</b-button>
                     <b-button @click="showGeneric('Customer', 'customerTable', 'Customer/byUncollected')">Show Top Uncollected Amount</b-button>
                     <b-button @click="showGeneric('Customer', 'customerTable', 'Customer/byPaying')">Show Top Paying Customers</b-button>
                     <b-button @click="showLastEdited('Customer', 'customerTable')">Last Edited</b-button>
@@ -718,6 +730,7 @@
           bank: '',
           value: '',
           clearingDate: '',
+          processedDate: '',
           bouncedDate: ''
         },
         paymentForm: {
@@ -727,6 +740,7 @@
           bank: '',
           value: '',
           clearingDate: '',
+          processedDate: '',
           bouncedDate: '',
           table: 'Payment',
           id: '',
@@ -793,8 +807,15 @@
                 receiptNo: '',
                 customer: ''
             },
+            Payment: {
+                viewId: 'Payment/byLastEdited',
+                includeKey: false,
+                key: '',
+                number: '',
+                customer: ''
+            },
             Customer: {
-                viewId: '_all_docs',
+                viewId: 'Customer/byLastEdited',
                 includeKey: false,
                 key: '',
                 customer: ''
@@ -886,6 +907,9 @@
           },
           {
             key: 'clearingDate'
+          },
+          {
+            key: 'processedDate'
           },
           {
             key: 'bouncedDate'
@@ -1154,11 +1178,17 @@
         orderList(ctx, callback) {
           this.getData(ctx, callback, 'Order');
         },
-        filterReceiptNo(){
-            this.searchForm['Order'].viewId = 'Order/byReceiptNo';
-            this.searchForm['Order'].includeKey = true;
-            this.searchForm['Order'].key = this.searchForm['Order'].receiptNo
-            this.refresh('orderTable');
+        filterByKey(type, tableId, viewId, key){
+            this.searchForm[type].viewId = viewId;
+            this.searchForm[type].includeKey = true;
+            this.searchForm[type].key = key;
+            this.refresh(tableId);
+        },
+        filterCustomer(type, tableId, viewId, key){
+            this.searchForm[type].viewId = viewId;
+            this.searchForm[type].includeKey = true;
+            this.searchForm[type].key = this.customerDataList.get(key);
+            this.refresh(tableId);
         },
         filterCustomerOrder(){
             this.searchForm['Order'].viewId = 'Order/byCustomerId';
@@ -1244,6 +1274,15 @@
                   } else {
                     console.log('write to vue table');
                     Object.assign(this.selectedItem, response.data.result);
+                  }
+                  if(submitForm.table == 'Payment'){
+                      console.log('refresh Order and Customer Table');
+                      this.refresh('orderTable');
+                      this.refresh('customerTable');
+                  }
+                  if(submitForm.table == 'Order'){
+                      console.log('refresh Customer Table');
+                      this.refresh('customerTable');
                   }
                   this.showSuccessMessage();
                 } else {

@@ -1,0 +1,24 @@
+{
+  "_id": "_design/Payment",
+  "_rev": "6-8d67ac34320e83e311d4a2e7dceefe81",
+  "views": {
+    "byLastEdited": {
+      "map": "function (doc) {\n  emit(doc.lastEdited, 1);\n}"
+    },
+    "byCustomerId": {
+      "map": "function (doc) {\n  emit(doc.customerId, 1);\n}"
+    },
+    "byPaymentNo": {
+      "map": "function (doc) {\n  emit(doc.paymentNo, 1);\n}"
+    },
+    "byCheckNo": {
+      "map": "function (doc) {\n  if(doc.checkNo){\n    emit(doc.checkNo, 1);\n  }\n}"
+    },
+    "byClearingDate": {
+      "map": "function (doc) {\n  if(!doc.processedDate && doc.clearingDate){\n    emit(doc.clearingDate, 1);\n  }\n}"
+    },
+    "byBouncedDate": {
+      "map": "function (doc) {\n  if(doc.bouncedDate){\n    emit(doc.bouncedDate, 1);\n  }\n}"
+    },
+  "language": "javascript"
+}

@@ -23,8 +23,9 @@ public class Payment extends CouchDocument{
     private String receiptNoList;
     private BigDecimal value;
     private String bank;
-    private String checkNo;
+    private long checkNo;
     private LocalDate clearingDate;
+    private LocalDate processedDate;
     private LocalDate bouncedDate;
     private List<PaymentRecord> receiptNos;
     private String customerId;
