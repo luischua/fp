@@ -100,5 +100,6 @@ public class Payment extends CouchDocument{
             o.addPayments(getId(), p);
             dbClient.update(o);
         }
+        Customer.computeOrderStats(customerId);
     }
 }

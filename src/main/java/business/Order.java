@@ -173,26 +173,6 @@ public class Order extends CouchDocument {
     }
 
     public void afterSave(){
-        computeOrderStats(customerId);
-    }
-
-    public static void computeOrderStats(String customerId){
-        List<Order> orders = (List<Order>)CouchDocument.retreiveByFkId(customerId, Order.class, "Order/byCustomerId");
-        OrderStats stats = new OrderStats();
-        for(Order order: orders){
-            if(order.getCanceledDate() != null){
-                stats.getCancelled().addTotal(order.getTotal(), order.getReceiptNo());
-            } else if(order.getDeliveredDate() != null) {
-                stats.getToBeCollected().addTotal(order.getTotal(), order.getReceiptNo());
-            } else if(order.getPaidDate() != null) {
-                stats.getPaid().addTotal(order.getTotal(), order.getReceiptNo());
-            } else{
-                stats.getToBeDelivered().addTotal(order.getTotal(), order.getReceiptNo());
-            }
-        }
-        CouchDbClient dbClient = CouchDBUtil.getDbClient(Customer.class);
-        Customer c = dbClient.find(Customer.class, customerId);
-        c.setOrderStats(stats);
-        dbClient.update(c);
+        Customer.computeOrderStats(customerId);
     }
 }

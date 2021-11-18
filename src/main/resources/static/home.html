@@ -39,9 +39,9 @@
                     <b-button @click="filterCustomerOrder">Filter by Customer</b-button>
                     <b-form-input v-model="searchForm['Order'].receiptNo"></b-form-input>
                     <b-button @click="filterReceiptNo">Filter by ReceiptNo</b-button>
-                    <b-button @click="showPendingOrder">Show Pending Deliveries</b-button>
-                    <b-button @click="showDueOrder">Show Due Orders</b-button>
-                    <b-button @click="showLastEditedOrder">Last Edited</b-button>
+                    <b-button @click="showGeneric('Order', 'orderTable', 'Order/byPendingOrder')">Show Pending Deliveries</b-button>
+                    <b-button @click="showGeneric('Order', 'orderTable', 'Order/byDueOrder')">Show Due Orders</b-button>
+                    <b-button @click="showLastEdited('Order', 'orderTable')">Last Edited</b-button>
                     Filter by : {{searchForm['Order'].viewId}}
                     <b-modal ref="bv-modal-order" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
@@ -266,8 +266,9 @@
                     <b-button @click="refresh('customerTable')">Refresh Table</b-button>
                     <b-form-input v-model="searchForm['Customer'].customer" list="customerSelect"></b-form-input>
                     <b-button @click="filterCustomerName">Filter by Name</b-button>
-                    <b-button @click="showUncollected">Show Top Uncollected Amount</b-button>
-                    <b-button @click="showPaying">Show Top Paying Customers</b-button>
+                    <b-button @click="showGeneric('Customer', 'customerTable', 'Customer/byUncollected')">Show Top Uncollected Amount</b-button>
+                    <b-button @click="showGeneric('Customer', 'customerTable', 'Customer/byPaying')">Show Top Paying Customers</b-button>
+                    <b-button @click="showLastEdited('Customer', 'customerTable')">Last Edited</b-button>
                     Filter by : {{searchForm['Customer'].viewId}}
                    <b-modal ref="bv-modal-customer" hide-footer>
                         <b-alert variant="danger" :show="showErrorAlert">{{ errorMessage }}</b-alert>
@@ -808,6 +809,12 @@
             sortable: true
           },
           {
+            key: 'orderStats.toBeCollected.total'
+          },
+          {
+            key: 'orderStats.paid.total'
+          },
+          {
             key: 'address'
           },
           {
@@ -1160,21 +1167,6 @@
             this.searchForm['Order'].key = this.customerDataList.get(customerName);
             this.refresh('orderTable');
         },
-        showPendingOrder(){
-            this.searchForm['Order'].viewId = 'Order/byPendingOrder';
-            this.searchForm['Order'].includeKey = false;
-            this.refresh('orderTable');
-        },
-        showDueOrder(){
-            this.searchForm['Order'].viewId = 'Order/byDueOrder';
-            this.searchForm['Order'].includeKey = false;
-            this.refresh('orderTable');
-        },
-        showLastEditedOrder(){
-            this.searchForm['Order'].viewId = 'Order/byLastEdited';
-            this.searchForm['Order'].includeKey = false;
-            this.refresh('orderTable');
-        },
         filterCustomerName(){
             this.searchForm['Customer'].viewId = 'Customer/byName';
             this.searchForm['Customer'].includeKey = true;
@@ -1182,15 +1174,15 @@
             this.searchForm['Customer'].key = customerName;
             this.refresh('customerTable');
         },
-        showUncollected(){
-            this.searchForm['Customer'].viewId = 'Customer/byUncollected';
-            this.searchForm['Customer'].includeKey = false;
-            this.refresh('customerTable');
+        showLastEdited(type, tableId){
+            this.searchForm[type].viewId = type+'/byLastEdited';
+            this.searchForm[type].includeKey = false;
+            this.refresh(tableId);
         },
-        showPaying(){
-            this.searchForm['Customer'].viewId = 'Customer/byPaying';
-            this.searchForm['Customer'].includeKey = false;
-            this.refresh('customerTable');
+        showGeneric(type, tableId, viewId){
+            this.searchForm[type].viewId = viewId;
+            this.searchForm[type].includeKey = false;
+            this.refresh(tableId);
         },
         info(item, index, button) {
             this.infoModal.title = `Row index: ${index}`
