@@ -190,8 +190,6 @@ public class BusinessController {
     @GetMapping("/list")
     public List list(HttpServletRequest request) {
         String table = request.getParameter(TABLE_KEY);
-        String page = request.getParameter(PAGE_KEY);
-        String rowsString = request.getParameter(ROWS_KEY);
         String tableClass = "business.".concat(table);
         List documentList = null;
         Class clz;
@@ -215,13 +213,16 @@ public class BusinessController {
                 v = v.descending(false).endKey(LocalDate.now());
             }
 
-
-            int rows = 100;
+            String rowsString = request.getParameter(ROWS_KEY);
             if(rowsString != null){
-                rows = Integer.parseInt(rowsString);
+                int rows = Integer.parseInt(rowsString);
+                String page = request.getParameter(PAGE_KEY);
+                documentList = v.queryPage(rows, page, clz)
+                        .getResultList();
+            }else{
+                documentList = v.query(clz);
             }
-            documentList = v.queryPage(rows, page, clz)
-                    .getResultList();
+
         }catch (Exception e){
             e.printStackTrace();
         }
