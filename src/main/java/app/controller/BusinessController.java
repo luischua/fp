@@ -33,10 +33,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class BusinessController {
@@ -239,8 +236,22 @@ public class BusinessController {
                 .limit(10000)
                 .includeDocs(true)
                 .query(Order.class);
-        CouchDbClient dbClient2 = CouchDBUtil.getDbClient(MonthlySales.class);
-        List<MonthlySales> list = dbClient2.view("MonthlySales/byYearMonth")
+        saveMonthlySales(yearMonth, documentList);
+    }
+
+    @GetMapping("/totalSales")
+    public void totalSales(){
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(Order.class);
+        List<Order> documentList = dbClient.view("Order/byYearMonth")
+                .limit(10000)
+                .includeDocs(true)
+                .query(Order.class);
+        saveMonthlySales(99999999, documentList);
+    }
+
+    private void saveMonthlySales(int yearMonth, List<Order> documentList) {
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(MonthlySales.class);
+        List<MonthlySales> list = dbClient.view("MonthlySales/byYearMonth")
                 .key(yearMonth)
                 .includeDocs(true)
                 .query(MonthlySales.class);
@@ -249,12 +260,12 @@ public class BusinessController {
             sales = new MonthlySales();
             sales.setYearMonth(yearMonth);
             sales.computeSales(documentList);
-            dbClient2.save(sales);
+            dbClient.save(sales);
         }else{
             System.out.println(sales);
             sales = list.get(0);
             sales.computeSales(documentList);
-            dbClient2.update(sales);
+            dbClient.update(sales);
         }
     }
 
@@ -268,7 +279,23 @@ public class BusinessController {
             System.out.println(yearMonth);
             computeMonthlySales(yearMonth/100, yearMonth%100);
         }
+    }
 
+    @GetMapping("/productFields")
+    public List productFields(){
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(Product.class);
+        List<KeyLabel> keyLabelList = new ArrayList<KeyLabel>();
+        KeyLabel yearMonth = new KeyLabel();
+        yearMonth.setKey("yearMonth");
+        yearMonth.setLabel("Year Month");
+        keyLabelList.add(yearMonth);
+        for(Product p : dbClient.view("_all_docs").includeDocs(true).query(Product.class)){
+            KeyLabel label = new KeyLabel();
+            label.setKey("productSales."+p.getId()+".quantity");
+            label.setLabel(p.getName());
+            keyLabelList.add(label);
+        }
+        return keyLabelList;
     }
 
     @GetMapping("/generateXLS")

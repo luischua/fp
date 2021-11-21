@@ -633,6 +633,18 @@
                         </template>
                     </b-table>
                 </b-tab>
+                <b-tab title="Product Sales Breakdown">
+                    <b-button @click="refresh('productSalesTable')">Refresh Table</b-button>
+                    <b-table  ref="productSalesTable" bordered striped hover sticky-header="600px" :items="monthlySalesList" :fields="productSalesFields"
+                              :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
+                        <template #table-busy>
+                            <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                    </b-table>
+                </b-tab>
             </b-tabs>
 
     </div>
@@ -824,6 +836,11 @@
                 includeKey: false,
                 key: '',
                 customer: ''
+            },
+            MonthlySales: {
+                viewId: 'MonthlySales/byYearMonth',
+                includeKey: false,
+                key: '',
             }
         },
         customerFields: [{
@@ -979,6 +996,7 @@
             key: 'totalValue',
           }
         ],
+        productSalesFields: [],
         monthlySalesProductListFields: [{
             key: 'name'
           },
@@ -1196,6 +1214,16 @@
               console.log(error);
             });
         },
+        getProductFields() {
+          console.log("Loading Product Fields...");
+          axios.get('/productFields')
+            .then((response) => {
+                this.productSalesFields = response.data;
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        },
         customerList(ctx, callback) {
           this.getData(ctx, callback, 'Customer');
         },
@@ -1352,6 +1380,7 @@
         this.getDataSelect('Agent');
         this.getDataSelect('Trucking');
         this.getDataSelect('Category');
+        this.getProductFields();
       }
     });
     </script>
