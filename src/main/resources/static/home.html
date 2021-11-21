@@ -603,6 +603,10 @@
                 </b-tab>
                 <b-tab title="Monthly Sales Report">
                     <b-button @click="refresh('monthlySalesTable')">Refresh Table</b-button>
+                    <b-form-select v-model="reportOptions.monthSelected" :options="reportOptions.month"></b-form-select>
+                    <b-form-select v-model="reportOptions.yearSelected" :options="reportOptions.year"></b-form-select>
+                    <b-button @click="generateReport">Generate Report</b-button>
+                    <b-button @click="generateAllReport">Generate All months</b-button>
                     <b-table  ref="monthlySalesTable" bordered striped hover sticky-header="600px" :items="monthlySalesList" :fields="monthlySalesFields"
                               :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                         <template #table-busy>
@@ -618,6 +622,7 @@
                             <b-button size="sm" @click="row.toggleDetails">
                                 {{ row.detailsShowing ? 'Hide' : 'Show' }} Product Quantity Breakdown
                             </b-button>
+                            Last Edited: {{row.item.generatedDateTimeString}}
                         </template>
                         <template #row-details="row">
                             <b-card>
@@ -1047,7 +1052,29 @@
           {
             key: 'value'
           }
-        ]
+        ],
+        reportOptions: {
+            monthSelected: new Date().getMonth()+1,
+            yearSelected: 2021,
+            month: [
+              { value: 1, text: 'January' },
+              { value: 2, text: 'Febuary' },
+              { value: 3, text: 'March' },
+              { value: 4, text: 'April' },
+              { value: 5, text: 'May'},
+              { value: 6, text: 'June' },
+              { value: 7, text: 'July' },
+              { value: 8, text: 'August' },
+              { value: 9, text: 'September' },
+              { value: 10, text: 'October'},
+              { value: 11, text: 'November'},
+              { value: 12, text: 'December'}
+            ],
+            year: [
+              { value: 2021, text: '2021' },
+              { value: 2022, text: '2022' }
+            ]
+        }
       },
       methods: {
         countDownChanged(dismissCountDown) {
@@ -1112,6 +1139,24 @@
               console.log(error);
               callback([]);
             });
+        },
+        triggerUrl(url){
+          axios.get(url)
+            .then((response) => {
+                this.showSuccessMessage();
+             })
+            .catch((error) => {
+             });
+        },
+        generateReport() {
+          var url = '/monthlySales?month=' + this.reportOptions.monthSelected + '&year='+ this.reportOptions.yearSelected;
+          console.log("Generate Monthly Sales..."+ url);
+          this.triggerUrl(url);
+        },
+        generateAllReport() {
+          var url = '/allMonthlySales';
+          console.log("Generate All Monthly Sales..."+ url);
+          this.triggerUrl(url);
         },
         convertToMap(data){
             var map = new Map();

@@ -1,6 +1,5 @@
 {
   "_id": "_design/Customer",
-  "_rev": "6-8d67ac34320e83e311d4a2e7dceefe81",
   "views": {
     "byLastEdited": {
       "map": "function (doc) {\n  emit(doc.lastEdited, 1);\n}"

@@ -1,0 +1,9 @@
+{
+  "_id": "_design/MonthlySales",
+  "views": {
+    "byYearMonth": {
+      "map": "function (doc) {\n  emit(doc.yearMonth, 1);\n}"
+    }
+  },
+  "language": "javascript"
+}

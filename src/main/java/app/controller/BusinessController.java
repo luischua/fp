@@ -8,6 +8,7 @@ import org.jxls.util.JxlsHelper;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Response;
 import org.lightcouch.View;
+import org.lightcouch.ViewResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -239,10 +240,35 @@ public class BusinessController {
                 .includeDocs(true)
                 .query(Order.class);
         CouchDbClient dbClient2 = CouchDBUtil.getDbClient(MonthlySales.class);
-        MonthlySales sales = new MonthlySales();
-        sales.setYearMonth(yearMonth);
-        sales.computeSales(documentList);
-        dbClient2.save(sales);
+        List<MonthlySales> list = dbClient2.view("MonthlySales/byYearMonth")
+                .key(yearMonth)
+                .includeDocs(true)
+                .query(MonthlySales.class);
+        MonthlySales sales = null;
+        if(list.size() == 0) {
+            sales = new MonthlySales();
+            sales.setYearMonth(yearMonth);
+            sales.computeSales(documentList);
+            dbClient2.save(sales);
+        }else{
+            System.out.println(sales);
+            sales = list.get(0);
+            sales.computeSales(documentList);
+            dbClient2.update(sales);
+        }
+    }
+
+    @GetMapping("/allMonthlySales")
+    public void generateAllMonthlySales(){
+        CouchDbClient dbClient = CouchDBUtil.getDbClient(Order.class);
+        List<ViewResult<Integer, Integer, String>.Rows> documentList = dbClient.view("Order/byYearMonthReduce")
+                .group(true).queryView(Integer.class, Integer.class, String.class).getRows();
+        for(ViewResult.Rows row: documentList){
+            Integer yearMonth = (Integer)row.getKey();
+            System.out.println(yearMonth);
+            computeMonthlySales(yearMonth/100, yearMonth%100);
+        }
+
     }
 
     @GetMapping("/generateXLS")

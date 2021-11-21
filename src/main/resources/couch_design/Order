@@ -1,6 +1,5 @@
 {
   "_id": "_design/Order",
-  "_rev": "6-8d67ac34320e83e311d4a2e7dceefe81",
   "views": {
     "byLastEdited": {
       "map": "function (doc) {\n  emit(doc.lastEdited, 1);\n}"
@@ -13,6 +12,10 @@
     },
     "byYearMonth": {
       "map": "function (doc) {\n  if(doc.canceledDate == null){\n    emit(doc.period.yearMonth, 1);\n  }\n}"
+    },
+    "byYearMonthReduce": {
+      "map": "function (doc) {\n  if(doc.canceledDate == null){\n    emit(doc.period.yearMonth, 1);\n  }\n}",
+      "reduce": "_count"
     },
     "byPendingOrder": {
       "map": "function (doc) {\n  if(doc.deliveredDate == null && doc.canceledDate == null){\n    emit(doc.receiptNo, 1);\n  }\n}"
