@@ -605,8 +605,9 @@
                     <b-button @click="refresh('monthlySalesTable')">Refresh Table</b-button>
                     <b-form-select v-model="reportOptions.monthSelected" :options="reportOptions.month"></b-form-select>
                     <b-form-select v-model="reportOptions.yearSelected" :options="reportOptions.year"></b-form-select>
-                    <b-button @click="generateReport">Generate Report</b-button>
-                    <b-button @click="generateAllReport">Generate All months</b-button>
+                    <b-button @click="generateReport">Generate Specified Month Sales</b-button>
+                    <b-button @click="generateAllReport">Generate All Months Sales </b-button>
+                    <b-button @click="totalSales">Compute Total Sales</b-button>
                     <b-table  ref="monthlySalesTable" bordered striped hover sticky-header="600px" :items="monthlySalesList" :fields="monthlySalesFields"
                               :busy="isBusy" @row-dblclicked="edit" :tbody-transition-props="transProps">
                         <template #table-busy>
@@ -622,7 +623,7 @@
                             <b-button size="sm" @click="row.toggleDetails">
                                 {{ row.detailsShowing ? 'Hide' : 'Show' }} Product Quantity Breakdown
                             </b-button>
-                            Last Edited: {{row.item.generatedDateTimeString}}
+                            Last Generated Time: {{row.item.lastEditedString}}
                         </template>
                         <template #row-details="row">
                             <b-card>
@@ -993,6 +994,9 @@
             key: 'totalOrder'
           },
           {
+            key: 'totalUnitsSold'
+          },
+          {
             key: 'totalValue',
           }
         ],
@@ -1170,11 +1174,19 @@
           var url = '/monthlySales?month=' + this.reportOptions.monthSelected + '&year='+ this.reportOptions.yearSelected;
           console.log("Generate Monthly Sales..."+ url);
           this.triggerUrl(url);
+          this.refresh('monthlySalesTable');
         },
         generateAllReport() {
           var url = '/allMonthlySales';
           console.log("Generate All Monthly Sales..."+ url);
           this.triggerUrl(url);
+          this.refresh('monthlySalesTable');
+        },
+        totalSales() {
+          var url = '/totalSales';
+          console.log("Total Sales..."+ url);
+          this.triggerUrl(url);
+          this.refresh('monthlySalesTable');
         },
         convertToMap(data){
             var map = new Map();

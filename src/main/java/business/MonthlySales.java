@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.lightcouch.CouchDbClient;
-import util.BusinessUtil;
 import util.CouchDBUtil;
 
 import java.math.BigDecimal;
@@ -21,13 +20,9 @@ import java.util.stream.Collectors;
 public class MonthlySales extends CouchDocument {
     private int yearMonth;
     private int totalOrder;
-    private LocalDateTime generatedDateTime = LocalDateTime.now();
+    private int totalUnitsSold = 0;
     private BigDecimal totalValue = new BigDecimal(0);
     private Map<String, ProductSales> productSales;
-
-    public String getGeneratedDateTimeString() {
-        return BusinessUtil.getDateTimeString(generatedDateTime);
-    }
 
     public List<ProductSales> getOrderedProductSales(){
         if(productSales == null){
@@ -39,6 +34,9 @@ public class MonthlySales extends CouchDocument {
     }
 
     public void computeSales(List<Order> orderList){
+        setLastEdited(LocalDateTime.now());
+        setNarrative("gen at "+getLastEditedString());
+        System.out.println("Starting computing sales: "+yearMonth);
         CouchDbClient dbClient = CouchDBUtil.getDbClient(Product.class);
 
         productSales = new HashMap<String, ProductSales>();
@@ -47,8 +45,6 @@ public class MonthlySales extends CouchDocument {
             sales.setName(p.getName());
             productSales.put(p.getId(), sales);
         }
-
-        System.out.println(">>>"+productSales);
 
         totalOrder =  orderList.size();
         for(Order order: orderList){
@@ -62,16 +58,18 @@ public class MonthlySales extends CouchDocument {
                         productSales.put(r.getProductId(), sales);
                     }
                     sales.addQty(r.getQuantity());
+                    totalUnitsSold += r.getQuantity();
                 }
             }
             if(order.getPromo() != null) {
                 for (ProductRecord r : order.getPromo()) {
                     ProductSales sales = productSales.get(r.getProductId());
                     sales.addQty(r.getQuantity());
+                    totalUnitsSold += r.getQuantity();
                 }
             }
         }
-        System.out.println(">>>"+totalOrder);
-        System.out.println(">>>"+productSales);
+        System.out.println("Total Order: "+totalOrder);
+        System.out.println("Product Sales: "+productSales);
     }
 }
