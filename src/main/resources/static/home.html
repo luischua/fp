@@ -337,6 +337,9 @@
                             <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
                                 Info modal
                             </b-button>
+                            <b-button size="sm" @click="computeOrderStats(row.item.id)" class="mr-1">
+                                Compute Order Stats
+                            </b-button>
                             <b-button size="sm" @click="row.toggleDetails">
                                 {{ row.detailsShowing ? 'Hide' : 'Show' }} Order Stats
                             </b-button>
@@ -1174,19 +1177,29 @@
           var url = '/monthlySales?month=' + this.reportOptions.monthSelected + '&year='+ this.reportOptions.yearSelected;
           console.log("Generate Monthly Sales..."+ url);
           this.triggerUrl(url);
-          this.refresh('monthlySalesTable');
+          var thisRef = this;
+          setTimeout(function(){thisRef.refresh('monthlySalesTable')}, 2000);
         },
         generateAllReport() {
           var url = '/allMonthlySales';
           console.log("Generate All Monthly Sales..."+ url);
           this.triggerUrl(url);
-          this.refresh('monthlySalesTable');
+          var thisRef = this;
+          setTimeout(function(){thisRef.refresh('monthlySalesTable')}, 2000);
         },
         totalSales() {
           var url = '/totalSales';
           console.log("Total Sales..."+ url);
           this.triggerUrl(url);
-          this.refresh('monthlySalesTable');
+          var thisRef = this;
+          setTimeout(function(){thisRef.refresh('monthlySalesTable')}, 2000);
+        },
+        computeOrderStats(id) {
+          var url = '/computeOrderStats?customerId='+id;
+          console.log("Customer Order Stats..."+ url);
+          this.triggerUrl(url);
+          var thisRef = this;
+          setTimeout(function(){thisRef.refresh('customerTable')}, 2000);
         },
         convertToMap(data){
             var map = new Map();

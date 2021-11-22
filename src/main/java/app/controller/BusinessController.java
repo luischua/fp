@@ -298,6 +298,11 @@ public class BusinessController {
         return keyLabelList;
     }
 
+    @GetMapping("/computeOrderStats")
+    public void computeOrderStats(String customerId) {
+        Customer.computeOrderStats(customerId);
+    }
+
     @GetMapping("/generateXLS")
     public ResponseEntity<Resource> generateXLS(HttpServletRequest request) throws Exception{
         String orderId = request.getParameter("id");

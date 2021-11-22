@@ -51,6 +51,7 @@ public class Customer extends CouchDocument {
         CouchDbClient dbClient = CouchDBUtil.getDbClient(Customer.class);
         Customer c = dbClient.find(Customer.class, customerId);
         c.setOrderStats(stats);
+        c.setNarrative("updating stats;"+c.getNarrative());
         dbClient.update(c);
     }
 }
