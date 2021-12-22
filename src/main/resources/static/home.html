@@ -233,6 +233,9 @@
                             <b-form-group label="Value:">
                                 <b-form-input v-model="paymentForm.value"/>
                             </b-form-group>
+                            <b-form-group label="Rebate Value:">
+                                <b-form-input v-model="paymentForm.rebateValue"/>
+                            </b-form-group>
                             <b-form-group label="Bank:">
                                 <b-form-input v-model="paymentForm.bank"/>
                             </b-form-group>
@@ -951,6 +954,9 @@
           },
           {
             key: 'value'
+          },
+          {
+            key: 'rebateValue'
           }
         ],
         agentFields: [{

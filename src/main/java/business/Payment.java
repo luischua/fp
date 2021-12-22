@@ -22,6 +22,7 @@ public class Payment extends CouchDocument{
     private String type;
     private String receiptNoList;
     private BigDecimal value;
+    private BigDecimal rebateValue;
     private String bank;
     private long checkNo;
     private LocalDate clearingDate;
@@ -30,6 +31,13 @@ public class Payment extends CouchDocument{
     private List<PaymentRecord> receiptNos;
     private String customerId;
     private String customerName;
+
+    private BigDecimal computeValueAfterRebate(){
+        if(rebateValue != null) {
+            return value.subtract(rebateValue);
+        }
+        return value;
+    }
 
     public void beforeNew(SaveResult r){
         super.beforeNew(r);
@@ -62,7 +70,7 @@ public class Payment extends CouchDocument{
             System.out.println(orderList);
             customerId = null;
             customerName = null;
-            BigDecimal paymentAmount = getValue();
+            BigDecimal paymentAmount = computeValueAfterRebate();
             for (Order o : orderList) {
                 PaymentRecord p = new PaymentRecord();
                 if(customerId == null){
