@@ -69,7 +69,7 @@ public class Payment extends CouchDocument{
                     customerId = o.getCustomerId();
                     customerName = o.getCustomerName();
                 }else{
-                    if(customerId != o.getCustomerId()){
+                    if(!customerId.equals(o.getCustomerId())){
                         r.addError("multiple receiptNo doesn't belong to one customer");
                     }
                 }
@@ -97,7 +97,7 @@ public class Payment extends CouchDocument{
             Order o = dbClient.find(Order.class, record.getOrderId());
             OrderPayment p = new OrderPayment();
             p.setPaymentNo(getPaymentNo());
-            p.setValue(getValue());
+            p.setValue(record.getValue());
             o.addPayments(getId(), p);
             dbClient.update(o);
         }

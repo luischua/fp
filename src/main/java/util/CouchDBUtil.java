@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jsoup.helper.StringUtil;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 
@@ -54,12 +55,19 @@ public class CouchDBUtil {
         return builder;
     }
 
-    public static CouchDbClient getDbClient(Class key){
+    public static CouchDbClient getDbClient(Class key) {
+        return getDbClient(key, "");
+    }
+
+    public static CouchDbClient getDbClient(Class key, String appName){
         CouchDbClient client = dbClientMap.get(key);
         if(client == null){
             String name = key.getSimpleName().toLowerCase();
             System.out.println("getDBClient ("+name+"): "+config);
-            String tablename = name+"_"+config.getType();
+            if(!StringUtil.isBlank(appName)){
+                appName += "_";
+            }
+            String tablename = appName+name+"_"+config.getType();
             CouchDbProperties properties = new CouchDbProperties(tablename,
                     true, "http", config.getHost(), config.getPort(),
                     config.getCouchDbUsername(), config.getCouchDbPassword());
