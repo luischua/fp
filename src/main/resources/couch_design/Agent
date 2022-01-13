@@ -1,0 +1,15 @@
+{
+  "_id": "_design/Agent",
+  "views": {
+    "byLastEdited": {
+      "map": "function (doc) {\n  emit(doc.lastEdited, 1);\n}"
+    },
+    "byId": {
+      "map": "function (doc) {\n  emit(doc._id, 1);\n}"
+    },
+    "byName": {
+      "map": "function (doc) {\n  emit(doc.name, 1);\n}"
+    }
+  },
+  "language": "javascript"
+}

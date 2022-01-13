@@ -53,6 +53,19 @@ public class CouchDocument extends Document {
                 .query(clz);
     }
 
+    public static String getIdByName(String name, Class clz, String view){
+        CouchDbClient client = CouchDBUtil.getDbClient(clz);
+        List<CouchDocument> list = client.view(view)
+                .key(name)
+                .includeDocs(true)
+                .query(clz);
+        System.out.println(list);
+        if(list.size() == 1) {
+            return list.get(0).getId();
+        }
+        return null;
+    }
+
     public String getDBId(String name, Class clz){
         CouchDbClient dbClient = CouchDBUtil.getDbClient(clz);
         List<CouchDocument> list = dbClient.findDocs(

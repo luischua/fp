@@ -33,7 +33,10 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class BusinessController {
@@ -308,9 +311,14 @@ public class BusinessController {
         String orderId = request.getParameter("id");
         Order order = (Order) CouchDocument.findById(orderId, Order.class);
         Customer customer = (Customer) CouchDocument.findById(order.getCustomerId(), Customer.class);
-        Trucking trucking = (Trucking) CouchDocument.findById(customer.getTruckingId(), Trucking.class);
-        Agent agent  = (Agent) CouchDocument.findById(customer.getAgentId(), Agent.class);
-
+        Trucking trucking = null;
+        if(customer.getTruckingId() != null){
+            trucking = (Trucking) CouchDocument.findById(customer.getTruckingId(), Trucking.class);
+        }
+        Agent agent = null;
+        if(customer.getAgentId() != null) {
+            agent = (Agent) CouchDocument.findById(customer.getAgentId(), Agent.class);
+        }
         System.out.println(order);
         System.out.println(customer);
         String fileName = order.getReceiptNo() + ".xlsx";

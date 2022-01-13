@@ -29,9 +29,10 @@ public class Customer extends CouchDocument {
         return client.find(Company.class, companyId);
     }
 
-    public void beforeSave() {
-        truckingId = getDBId(truckingName, Trucking.class);
-        agentId = getDBId(agentName, Agent.class);
+    public void beforeSave(SaveResult r) {
+        super.beforeSave(r);
+        truckingId = CouchDocument.getIdByName(truckingName, Trucking.class, "Trucking/byName");
+        agentId = CouchDocument.getIdByName(agentName, Agent.class, "Agent/byName");
     }
 
     public static void computeOrderStats(String customerId){
