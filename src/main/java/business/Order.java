@@ -8,6 +8,7 @@ import util.BusinessUtil;
 import util.CouchDBUtil;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -141,6 +142,11 @@ public class Order extends CouchDocument {
             }
         }
         return total;
+    }
+
+    public String getTotalString(){
+        NumberFormat nf = NumberFormat.getCurrencyInstance();
+        return nf.format(getTotal());
     }
 
     public void beforeNew(SaveResult r){
