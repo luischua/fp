@@ -353,9 +353,6 @@
                         <template #cell(name)="data">
                             {{ data.value }}
                         </template>
-                        <template #cell(notes)="data">
-                            {{ data.value }}
-                        </template>
                         <template #cell(address)="data">
                             {{ data.value }}
                         </template>
@@ -366,6 +363,15 @@
                             {{ data.value }}
                         </template>
                         <template #cell(terms)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(agentName)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(truckingName)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(notes)="data">
                             {{ data.value }}
                         </template>
                         <template #row-details="row">
@@ -867,6 +873,15 @@
             sortable: true
           },
           {
+            key: 'notes'
+          },
+          {
+            key: 'agentName'
+          },
+          {
+            key: 'truckingName'
+          },
+          {
             key: 'orderStats.toBeCollected.total'
           },
           {
@@ -882,12 +897,6 @@
           {
             key: 'telephone',
             label: 'Tel Number'
-          },
-          {
-            key: 'agentName'
-          },
-          {
-            key: 'truckingName'
           },
           {
             key: 'terms'
