@@ -23,6 +23,7 @@ public class Customer extends CouchDocument {
     private String agentId;
     private String agentName;
     private OrderStats orderStats;
+    private String notes;
 
     public Company findCompany(){
         CouchDbClient client = CouchDBUtil.getDbClient(Company.class);

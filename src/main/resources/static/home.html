@@ -318,6 +318,9 @@
                             <b-form-group label="Trucking:">
                                 <b-form-input v-model="customerForm.truckingName" list="truckingSelect"></b-form-input>
                             </b-form-group>
+                            <b-form-group label="Notes:">
+                                <b-form-input v-model="customerForm.notes"/>
+                            </b-form-group>
                             <b-button type="submit" variant="primary">Submit</b-button>
                             <b-form-input v-model="customerForm.table" value="Customer" style="display:none;"/>
                             <b-form-input v-model="customerForm.id" style="display:none;"/>
@@ -348,6 +351,9 @@
                             </b-button>
                         </template>
                         <template #cell(name)="data">
+                            {{ data.value }}
+                        </template>
+                        <template #cell(notes)="data">
                             {{ data.value }}
                         </template>
                         <template #cell(address)="data">
@@ -697,6 +703,7 @@
           terms: '60',
           agentName: '',
           truckingName: '',
+          notes: ''
         },
         customerForm: {
           name: '',
@@ -706,6 +713,7 @@
           terms: '',
           agentName: '',
           truckingName: '',
+          notes: '',
           table: 'Customer',
           id: '',
           revision: ''

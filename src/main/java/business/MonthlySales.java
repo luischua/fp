@@ -47,6 +47,7 @@ public class MonthlySales extends CouchDocument {
         }
 
         totalOrder =  orderList.size();
+        totalValue = new BigDecimal(0);
         for(Order order: orderList){
             totalValue = totalValue.add(order.getTotal());
             if(order.getProducts() != null) {
