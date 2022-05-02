@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    <!-- Add Bootstrap and Bootstrap-Vue CSS to the <head> section -->
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"/>
+</head>
+<body>
+<div id="app">
+    <datalist id="motorSelect">
+        <option v-for="[key, value] in motorDataList">{{key}}</option>
+    </datalist>
+    <b-form-group label="Motor Model:">
+        <b-form-input v-model="motorForm.model" list="motorSelect" @change="onMotorChange($event)"></b-form-input>
+        <b>Design: {{ motorForm.design }}</b>
+    </b-form-group>
+</div>
+<!-- Add Vue and Bootstrap-Vue JS just before the closing </body> tag -->
+<script src="https://unpkg.com/vue@2.6.14/dist/vue.min.js"></script>
+<script src="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+
+<!-- axios -->
+<script src="https://unpkg.com/axios@0.25.0/dist/axios.min.js"></script>
+<script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        motorDataList: new Map( [
+          [ "Honda CB110 Front", "CB110" ],
+          [ "Suzuki GSX-R150 Front", "CB110" ],
+          [ "Suzuki GSX-S150 Front", "CB110" ],
+          [ "Suzuki GIXXER Front", "CB110" ],
+          [ "Suzuki Raider150FI Front", "CB110" ],
+          [ "Suzuki Raider150 Front", "RAIDER150" ],
+          [ "Suzuki RaiderJ110 Front", "RAIDER150" ],
+          [ "Suzuki Shogun Front", "RAIDER150" ],
+          [ "Suzuki Smash Front", "RAIDER150" ],
+          [ "Kawasaki Fury125 Front", "RAIDER150" ],
+          [ "Kymco RacingKing180 Rear", "RAIDER150" ],
+          [ "Kymco VisaR110 Front", "RAIDER150" ],
+          [ "Suzuki Thunder Front", "THUNDER" ],
+          [ "Kawasaki KLX150 Front", "THUNDER" ],
+          [ "Yamaha XTZ125 Front", "THUNDER" ],
+          [ "SYM Jet100 Front", "THUNDER" ],
+          [ "SYM Jet4125 Front", "THUNDER" ],
+          [ "Kymco Like125 Front", "THUNDER" ],
+          [ "Kymco Racing King 180i Front", "THUNDER" ],
+          [ "Yamaha MioSoul Front", "MIO SOUL" ],
+          [ "Yamaha MioSporty Front", "MIO SOUL" ],
+          [ "Yamaha Mio125MX Front", "MIO SOUL" ],
+          [ "Yamaha Mio125MXI Front", "MIO SOUL" ],
+          [ "Yamaha Sniper135 Front", "MIO SOUL" ],
+          [ "Yamaha SniperMX Front", "MIO SOUL" ],
+          [ "Yamaha Fino Front", "MIO SOUL" ],
+          [ "Yamaha NMAX Rear", "MIO SOUL" ],
+          [ "Yamaha Vega115 Front", "MIO SOUL" ],
+          [ "Yamaha VegaForce Front", "MIO SOUL" ],
+          [ "Yamaha VegaForceFI Front", "MIO SOUL" ],
+          [ "Yamaha YZFR15V2V3 Front", "MIO SOUL" ],
+          [ "Yamaha YBR125 Front", "MIO SOUL" ],
+          [ "Yamaha MioAmoreOld Front", "MIO OLD" ],
+          [ "Yamaha MioSportyOld Front", "MIO OLD" ],
+          [ "Yamaha Mio1 Front", "MIO OLD" ],
+          [ "Yamaha Mio2 Front", "MIO OLD" ],
+          [ "Yamaha MioMX Front", "MIO OLD" ],
+          [ "Yamaha MioZR Front", "MIO OLD" ],
+          [ "Yamaha MioZ Front", "MIO OLD" ],
+          [ "Yamaha MioCyber2005 Front", "MIO OLD" ],
+          [ "Yamaha NUOVO Front", "NUOVO" ],
+          [ "Yamaha Crypton Front", "NUOVO" ],
+          [ "SYM Bonus110 Front", "SYM" ],
+          [ "SYM SportBonus Front", "SYM" ],
+          [ "SYM RV1-2 Front", "SYM" ],
+          [ "SYM Wolf Front", "SYM" ],
+          [ "Suzuki Shogun Rear", "SHOGUN" ],
+          [ "Suzuki Raider150 Rear", "SHOGUN" ],
+          [ "Yamaha SniperMX Rear", "SHOGUN" ],
+          [ "Yamaha TFX150 Rear", "SHOGUN" ],
+          [ "Yamaha Tricity Rear", "SHOGUN" ],
+          [ "Yamaha YZF-R15 Rear", "SHOGUN" ],
+          [ "Honda XRM110Old Front", "XRM OLD" ],
+          [ "Honda Wave100Old Front", "XRM OLD" ],
+          [ "Honda Wave110Old Front", "XRM OLD" ],
+          [ "Honda Beat Front", "BEAT" ],
+          [ "Honda Beat110FI Front", "BEAT" ],
+          [ "Honda Click125I Front", "BEAT" ],
+          [ "Honda Click150I Front", "BEAT" ],
+          [ "Honda Scoopy Front", "BEAT" ],
+          [ "Honda Zoomer-X Front", "BEAT" ],
+          [ "Yamaha TricityL Front", "BEAT" ],
+          [ "Yamaha TricityH Front", "BEAT" ],
+          [ "Kawasaki KLX150 Rear", "KLX150" ],
+          [ "Kawasaki KLX110 Rear", "KLX150" ],
+          [ "Kawasaki Fury125 Rear", "KLX150" ],
+          [ "Honda XRMNew Front", "XRM NEW" ],
+          [ "Honda XRM125 Front", "XRM NEW" ],
+          [ "Honda Wave125Alpha Front", "XRM NEW" ],
+          [ "Honda ADV150 Front", "XRM NEW" ],
+          [ "Honda CB150R Front", "XRM NEW" ],
+          [ "Honda CBR150R Front", "XRM NEW" ],
+          [ "Honda CRF150 Front", "XRM NEW" ],
+          [ "Honda CRF250 Front", "XRM NEW" ],
+          [ "Honda PCX150 Front", "XRM NEW" ],
+          [ "Honda RS125 Front", "XRM NEW" ],
+          [ "Honda SuperKing150MXI Rear", "XRM NEW" ],
+          [ "Honda XRMTrinity Front", "TRINITY" ],
+          [ "Honda XRM125FI Front", "XRM NEW" ],
+          [ "Honda Wave110New Front", "XRM NEW" ],
+          [ "Honda WaveDash Front", "XRM NEW" ],
+          [ "Honda RS125FI Front", "XRM NEW" ],
+          [ "Honda RS150 Front", "XRM NEW" ],
+          [ "Suzuki Hayate Front", "XRM NEW" ],
+          [ "Suzuki HayateFI Front", "XRM NEW" ],
+          [ "Suzuki Raid-J115 Front", "XRM NEW" ],
+          [ "Suzuki Shooter155 Front", "XRM NEW" ],
+          [ "Suzuki Skydrive Front", "XRM NEW" ],
+          [ "Suzuki SkydriveFI Front", "XRM NEW" ],
+          [ "Suzuki Smash Front", "XRM NEW" ],
+          [ "Yamaha SZ-R Front", "XRM NEW" ],
+          [ "Yamaha TricityR Front", "XRM NEW" ],
+          [ "Yamaha TricityH Front", "XRM NEW" ],
+          [ "Kawasaki Rouser220 Rear", "ROUSER220" ],
+          [ "Honda XR200 Front", "XR200/ROUSER135" ],
+          [ "Honda XLR200 Front", "XR200/ROUSER135" ],
+          [ "Honda XR125 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki Rouser135 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki RouserNS150 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki RouserNS160 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki Rouser180 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki RouserNS200 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki RouserRS200 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki Wind125 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki Avenger220 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki Dominar400 Front", "XR200/ROUSER135" ],
+          [ "Kawasaki Dominar400 Rear", "XR200/ROUSER135" ],
+          [ "Yamaha FZ16 Front", "XR200/ROUSER135" ],
+          [ "Yamaha FZI Front", "XR200/ROUSER135" ],
+          [ "Yamaha Wind125 Front", "XR200/ROUSER135" ]
+        ]),
+        motorForm: {
+          design: '',
+          model: ''
+        }
+      },
+       methods: {
+            onMotorChange(event) {
+              var model = this.motorForm.model;
+              //console.log("Model:"+model);
+              this.motorForm.design = this.motorDataList.get(model);
+              //console.log("Design:"+this.motorForm.design);
+            }
+        }
+    });
+</script>
+</body>
+</html>
