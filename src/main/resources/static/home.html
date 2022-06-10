@@ -101,6 +101,9 @@
                         <template #cell(customerName)="data">
                             {{ data.value }}
                         </template>
+                        <template #cell(agentName)="data">
+                            {{ data.value }}
+                        </template>
                         <template #cell(deliveredDate)="data">
                             {{ data.value }}
                         </template>
@@ -1073,6 +1076,9 @@
             key: 'customerName'
           },
           {
+            key: 'agentName'
+          },
+          {
             key: 'receiptNoList'
           },
           {
@@ -1167,6 +1173,9 @@
           },
           {
             key: 'customerName'
+          },
+          {
+            key: 'agentName'
           },
           {
             key: 'deliveredDateString'

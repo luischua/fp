@@ -21,6 +21,8 @@ public class Order extends CouchDocument {
     private Customer customer;
     private String customerId;
     private String customerName;
+    private String agentId;
+    private String agentName;
     private long receiptNo;
     private int terms;
     private LocalDate deliveredDate;
@@ -61,6 +63,12 @@ public class Order extends CouchDocument {
             return ChronoUnit.DAYS.between(deliveredDate, paidDate);
         }
         return null;
+    }
+
+    public void removePayments(String paymentId) {
+        payments.remove(paymentId);
+        paidDate = null;
+        paymentExceeded = false;
     }
 
     public void addPayments(String paymentId, OrderPayment p){
@@ -173,6 +181,8 @@ public class Order extends CouchDocument {
             Customer c = list.get(0);
             customerId = c.getId();
             terms = c.getTerms();
+            agentId = c.getAgentId();
+            agentName = c.getAgentName();
         }
         //refresh computed collectionDate value
         getCollectionDate();

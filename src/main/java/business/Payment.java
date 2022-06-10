@@ -18,6 +18,8 @@ import java.util.List;
 public class Payment extends CouchDocument{
 
     private long paymentNo;
+    private String agentId;
+    private String agentName;
     //cash, online, check
     private String type;
     private String receiptNoList;
@@ -76,6 +78,8 @@ public class Payment extends CouchDocument{
                 if(customerId == null){
                     customerId = o.getCustomerId();
                     customerName = o.getCustomerName();
+                    agentId = o.getAgentId();
+                    agentName = o.getAgentName();
                 }else{
                     if(!customerId.equals(o.getCustomerId())){
                         r.addError("multiple receiptNo doesn't belong to one customer");
@@ -106,7 +110,11 @@ public class Payment extends CouchDocument{
             OrderPayment p = new OrderPayment();
             p.setPaymentNo(getPaymentNo());
             p.setValue(record.getValue());
-            o.addPayments(getId(), p);
+            if(this.getBouncedDate() == null) {
+                o.addPayments(getId(), p);
+            }else{
+                o.removePayments(getId());
+            }
             dbClient.update(o);
         }
         Customer.computeOrderStats(customerId);
